@@ -1,0 +1,5 @@
+{
+    "package_name": "virtstrapsuite",
+    "env_types": ["pip"],
+    "pip_requirements_file": "requirements.txt"
+}

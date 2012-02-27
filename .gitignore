@@ -1,0 +1,58 @@
+# Compile files
+*.so
+*.o
+*.exe
+*.com
+*.class
+*.dll
+*.pyc
+
+# packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.tar
+*.rar
+*.zip
+
+# log files and databases
+sqlite.db
+*.log
+ehthumbs.db
+Icon?
+Thumbs.db
+*.db
+*.db.*
+
+# Mac Related
+.DS_Store?
+.DS_Store
+
+# vim files
+.*.sw*
+
+# Other Python Specific
+*.egg-info
+*.egg
+*.EGG
+*.EGG-INFO
+bin
+build
+develop-eggs
+downloads
+eggs
+parts
+dist
+
+#virtstrap (old version)
+quickactivate.sh
+vs.env
+
+# Misc
+*.bak
+*.tmp
+
+# Sphinx
+docs/_build

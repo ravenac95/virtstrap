@@ -1,0 +1,6 @@
+nose
+virtualenv
+simpleyaml
+fudge
+pypiserver
+jinja2
