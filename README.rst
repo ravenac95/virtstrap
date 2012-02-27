@@ -17,5 +17,6 @@ This repository contains many tools to assist in the development of virtstrap.
 Many of which will be documented later. 
 
 In order to begin developing with the virtstrap suite, clone the repository
-then run ``make getsubs``. This will initialize all of the submodules for the
-virtstrap suite. 
+then run ``make develop``. This will initialize all of the submodules for the
+virtstrap suite and also setup the proper virtualenv. Finally do
+``source quickactivate.sh`` and you'll be in the proper virtual environment.
