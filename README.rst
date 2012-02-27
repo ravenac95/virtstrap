@@ -15,3 +15,7 @@ subprojects are:
 
 This repository contains many tools to assist in the development of virtstrap.
 Many of which will be documented later. 
+
+In order to begin developing with the virtstrap suite, clone the repository
+then run ``make getsubs``. This will initialize all of the submodules for the
+virtstrap suite. 
