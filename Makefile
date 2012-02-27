@@ -7,3 +7,7 @@ environment:
 	source quickactivate.sh; cd virtstrap-core/; python setup.py develop
 	source quickactivate.sh; cd virtstrap/; python setup.py develop
 	source quickactivate.sh; cd virtstrap-local/; python setup.py develop
+
+develop:
+	make getsubs
+	make environment
