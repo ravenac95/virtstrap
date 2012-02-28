@@ -14,9 +14,11 @@ develop:
 
 testall:
 	@echo "******************VIRTSTRAP-CORE TESTS*******************"
-	cd virtstrap-core; make ptest
+	@cd virtstrap-core; make ptest
 	@echo "******************VIRTSTRAP (MAIN WRAPPER) TESTS*******************"
-	cd virtstrap; make ptest
+	@cd virtstrap; make ptest
+	@echo "******************VIRTSTRAP-LOCAL TESTS*******************"
+	@cd virtstrap-local; make ptest
 
 supportfiles:
 	cd virtstrap-core; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
