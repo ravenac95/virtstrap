@@ -1,17 +1,10 @@
-# Get and update the submodules
-getsubs:
-	git submodule init
-	git submodule update
-
 # Install using the source
 install:
-	make getsubs
 	cd virtstrap-core; pip install .
 	cd virtstrap; pip install .
 
 # Install an editable version of the source
 install-develop:
-	make getsubs
 	cd virtstrap-core/; pip install -e .
 	cd virtstrap/; pip install -e .
 
@@ -24,7 +17,6 @@ environment:
 
 # Quickstart for developers
 develop:
-	make getsubs
 	make environment
 
 # Test all of the packages
