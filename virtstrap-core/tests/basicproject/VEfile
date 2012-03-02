@@ -1,0 +1,34 @@
+#######################################################
+# Defines a list of python requirements
+# The idea is to keep it as simple and as close to 
+# feeling like a  a pip requirements file as possible
+#######################################################
+
+requirements:
+  - django # simple requirement version doesn't matter
+  - flask: 0.6.x # Will grab the from 0.6.0 to 0.6.#
+  - requests: 
+    - github|kennethreitz/requests
+    - editable: true
+  - lxml: >=2.3
+  - virtstrap: github|ravenac95/virtstrap@v0.2.3
+  - bwadj-localsearch: bwa|localsearch
+
+--- # Development profile
+profile: development
+
+reqs:
+  - ipython: '>= 0.12'
+
+--- # Testing Profile
+profile: test
+
+reqs:
+  - nose
+
+---
+profile: production
+
+reqs:
+  - mysql-python
+  - python-memcached

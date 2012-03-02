@@ -1,0 +1,33 @@
+#!/bin/bash
+source {{ project.bin_path('ve_activate') }}
+
+# Tell the system we're in virtstrap
+VIRTSTRAP_ENV="{{ project.env_path() }}"
+export VIRTSTRAP_ENV
+
+# Store the current path to the current project
+VIRTSTRAP_PROJECT_DIR="{{ project.path() }}"
+export VIRTSTRAP_PROJECT_DIR
+
+# Save the deactivate function from virtualenv under a different name
+virtualenv_original_deactivate=`typeset -f deactivate | sed 's/deactivate/virtualenv_deactivate/g'`
+
+# Eval the previously saved string to create 'virtualenv_deactivate'
+eval "$virtualenv_original_deactivate"
+
+# Remove the old deactivate
+unset -f deactivate >/dev/null 2>&1
+
+# Define a new one
+deactivate () {
+    virtualenv_deactivate $1
+
+    unset VIRTSTRAP_ENV
+    unset VIRTSTRAP_PROJECT_DIR
+    if [ ! "$1" = "nondestructive" ]
+    then
+        # Remove this function
+        unset -f virtualenv_deactivate >/dev/null 2>&1
+        unset -f deactivate >/dev/null 2>&1
+    fi
+}

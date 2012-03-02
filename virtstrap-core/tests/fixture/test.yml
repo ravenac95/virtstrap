@@ -1,0 +1,31 @@
+list_section:
+  - value1
+  - value2
+  - value3
+
+kv_section:
+  key1: value1
+
+data1: value1
+
+---
+profile: profile1
+
+list_section:
+  - value4
+
+kv_section:
+  key2: value2
+
+data1: value2
+
+---
+profile: profile2
+
+list_section:
+  - value5
+
+kv_section:
+  key1: override1
+
+data1: value3
