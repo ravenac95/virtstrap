@@ -50,6 +50,10 @@ dist
 quickactivate.sh
 vs.env
 
+#virtstrap
+quickactivate
+.vs.env
+
 # Misc
 *.bak
 *.tmp

@@ -1,6 +1,3 @@
-[submodule "virtstrap"]
-	path = virtstrap
-	url = git@github.com:ravenac95/virtstrap.git
 [submodule "virtstrap-local"]
 	path = virtstrap-local
 	url = git@github.com:ravenac95/virtstrap-local.git
