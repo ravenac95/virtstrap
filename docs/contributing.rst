@@ -1,6 +1,6 @@
 .. _contributing:
 
-Contributing to Virtstrap
+Contributing to virtstrap
 =========================
 
 In order to provide for the an easy setup for the user, virtstrap has been
@@ -20,16 +20,55 @@ split into 3 different packages.
 .. _virtstrap-core: https://github.com/ravenac95/virtstrap-core
 .. _virtstrap-local: https://github.com/ravenac95/virtstrap-local
 
-A more convenient way to contribute
------------------------------------
+Virtstrap-suite: A more convenient way to contribute
+----------------------------------------------------
 
 In order to facilitate some easier development with virtstrap. It has all been
 combined into a convenient repository, `virtstrap-suite`_. This repository
-contains all three of the virtstrap repositories as a submodule. It also
-contains a make file that contains some convenience commands which will be
-explained at a later time. It is possible that all of the three repositories
-will be combined into a single repository in the future. This might make 
-development much more trivial than it is currently. However, at this time, this
-is the setup.
+contains: 
+
+- All three of the virtstrap repositories as a submodule. 
+- A ``Makefile`` that contains some convenience commands which will be
+  explained below. 
+- This documentation source.
+  
+.. note::
+    It is possible that all of the three repositories will be combined into a
+    single repository in the future. This might make development much more
+    trivial than it is currently. However, at this time, this is the setup.
 
 .. _virtstrap-suite: https://github.com/ravenac95/virtstrap-suite
+
+Using virtstrap-suite to develop
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the suggested process for using virtstrap-suite. First, clone the
+repository from github::
+
+    $ git clone git://github.com/ravenac95/virtstrap-suite.git
+
+Then create the working environment. This uses an old version of virtstrap.
+Eventually that may be replaced by the latest stable virtstrap::
+    
+    $ make develop
+
+Finally source the environment::
+    
+    $ source quickactivate.sh
+
+Virtstrap-suite Makefile
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The virtstrap-suite repository contains a Makefile that has the following 
+commands:
+
+- ``getsubs`` - Initializes and updates all of the submodules
+- ``environment`` - Setup the development environment using an old version of
+  virstrap
+- ``develop`` - Runs getsubs and environment.
+- ``testall`` - Runs all of the tests in each of the submodules
+- ``supportfiles`` - Builds the support files and places them into the
+  virtstrap_support folder inside the virtstrap package.
+- ``install`` -  Installs virtstrap and virtstrap-core 
+- ``install-develop`` -  Installs virtstrap and virtstrap-core as 
+  development versions (they're editable)
