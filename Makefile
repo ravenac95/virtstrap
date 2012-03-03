@@ -26,5 +26,6 @@ testall:
 
 # Create support files for the virtstrap package
 supportfiles:
-	cd virtstrap-core; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
-	cd virtstrap-local; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
+	@cd virtstrap; rm virtstrap_support/virtstrap-*
+	@cd virtstrap-core; rm -r dist; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
+	@cd virtstrap-local; rm -r dist; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
