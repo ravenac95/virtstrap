@@ -9,15 +9,11 @@ install-develop:
 	cd virtstrap/; pip install -e .
 
 # Setup the development environment
-environment:
+develop:
 	python vstrap.py
 	source quickactivate.sh; cd virtstrap-core/; python setup.py develop
 	source quickactivate.sh; cd virtstrap/; python setup.py develop
 	source quickactivate.sh; cd virtstrap-local/; python setup.py develop
-
-# Quickstart for developers
-develop:
-	make environment
 
 # Test all of the packages
 testall:

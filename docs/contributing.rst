@@ -34,9 +34,8 @@ Virtstrap Makefile
 
 The virtstrap repository contains a Makefile that has the following commands:
 
-- ``environment`` - Setup the development environment using an old version of
-  virstrap
-- ``develop`` - Runs getsubs and environment.
+- ``develop`` - Setup the development environment using an old version of
+  virtstrap
 - ``testall`` - Runs all of the tests in all the packages
 - ``supportfiles`` - Builds the support files and places them into the
   virtstrap_support folder inside the virtstrap package.
