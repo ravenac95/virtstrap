@@ -7,7 +7,6 @@ classes are used for creating new commands in virtstrap.
 """
 
 from argparse import ArgumentParser
-from jinja2 import Environment
 from virtstrap.log import logger
 from virtstrap.templating import environment
 from virtstrap.project import Project

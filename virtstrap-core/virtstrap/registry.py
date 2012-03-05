@@ -56,4 +56,25 @@ class CommandRegistry(object):
         """Creates a command line interface parser for all commands"""
         return parser_from_commands(self.commands_iter())
 
+class PluginRegistry(object):
+    def __init__(self):
+        self._plugins_map = {}
+
+    def register(self, plugin):
+        command_name = plugin.command
+        plugins = self._plugins_map.get(command_name, [])
+        plugins.append(plugin)
+        self._plugins_map[command_name] = plugins
+
+    def retrieve_plugins(self, command_name):
+        return self._plugins_map.get(command_name, [])
+
+    def call_plugins(self, command_name, event, options, **kwargs):
+        """Call the plugin it shouldn't return"""
+        plugins = self.retrieve_plugins(command_name)
+        for plugin in plugins:
+            if event in plugin.events:
+                plugin.execute(event, options, **kwargs)
+
+
 
