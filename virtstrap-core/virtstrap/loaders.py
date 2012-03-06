@@ -23,7 +23,7 @@ class CommandLoader(object):
         for collector in self._collectors:
             collected_commands = collector.collect()
             for command in collected_commands:
-                commands.registry.register(command)
+                commands.registry.register_command(command)
 
 class Collector(object):
     def collect(self):
@@ -38,7 +38,6 @@ class ModuleCollectionMixin(object):
                 if commands.Command in bases:
                     collected_commands.append(variable)
         return collected_commands
-
 
 class BuiltinCommandCollector(Collector, ModuleCollectionMixin):
     def __init__(self, location):

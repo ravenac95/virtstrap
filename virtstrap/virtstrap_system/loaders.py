@@ -24,7 +24,9 @@ def call_project_command(project, command_name, command_args, output_errors=Fals
 
 class WrappedProjectCommand(commands.Command):
     """A special command that wraps a project command"""
-    def execute(self, options, project=None, raw_args=None, **kwargs):
+    def execute(self, registry, options, project=None, raw_args=None, **kwargs):
+        self.registry = registry
+        self.options = options
         return_code = 0
         try:
             call_project_command(project, self.name, raw_args)
@@ -34,6 +36,7 @@ class WrappedProjectCommand(commands.Command):
             return_code = 2
         finally:
             self.options = None
+            self.registry = None
         return return_code
 
 class ProjectCommandCollector(Collector):

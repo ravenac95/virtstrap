@@ -58,6 +58,7 @@ def test_run():
     The run command is wrapped in the execute method
     """
     class FakeCommand(Command):
+    class FakeCommand(NoEventCommand):
         name = 'test'
         def run(self, *args, **kwargs):
             self.called = True

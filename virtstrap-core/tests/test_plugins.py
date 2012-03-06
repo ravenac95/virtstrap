@@ -42,6 +42,5 @@ def test_create_plugin():
     assert fake_plugin.command == 'command'
     
     fake_plugin.execute('event', options)
-
     assert options['test'], 'Plugin did not make it to run the function'
 

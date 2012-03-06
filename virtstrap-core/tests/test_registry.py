@@ -7,7 +7,10 @@ def test_initialize_command_registry():
 
 class TestCommandRegistry(object):
     def setup(self):
-        self.registry = CommandRegistry()
+        fake_parent = fudge.Fake()
+        self.fake_parent = fake_parent
+        fake_parent.provides('call_plugins')
+        self.registry = CommandRegistry(parent=fake_parent)
 
     def test_register_a_command(self):
         """Test that a command registers correctly"""

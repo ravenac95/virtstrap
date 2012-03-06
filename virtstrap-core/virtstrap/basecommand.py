@@ -20,19 +20,24 @@ class Command(object):
     args = None
     parser = ArgumentParser()
     description = None
+    events = ['before', 'after']
 
     def __init__(self):
         # Ensure that name, usage, and description
         # are defined
         assert self.name
         self.options = None
+        self.registry = None
         self.logger = logger
 
-    def execute(self, options, **kwargs):
+    def execute(self, registry, options, **kwargs):
         """Wraps the user defined run method in the proper environment"""
         self.options = options
+        self.registry = registry
         self.logger.debug('Running "%s" command' % self.name)
         return_code = 0
+        if 'before' in self.events:
+            self.fire_event('before')
         try:
             self.run(options, **kwargs)
         except SystemExit, e:
@@ -41,8 +46,12 @@ class Command(object):
             self.logger.exception('An error occured executing command "%s"' %
                     self.__class__.__name__)
             return_code = 2
+        else:
+            if 'after' in self.events:
+                self.fire_event('after')
         finally:
             self.options = None
+            self.registry = None
         return return_code
 
     def render_template_string(self, source, **context):
@@ -76,6 +85,9 @@ class Command(object):
         """Must be overriden by subclasses"""
         raise NotImplementedError('This command does nothing')
 
+    def fire_event(self, event):
+        self.registry.call_plugins(self.name, event, self.options)
+
 class ProjectMixin(object):
     """A mixin that knows how to load projects"""
 
@@ -96,13 +108,17 @@ class ProjectCommand(Command, ProjectMixin):
 
     If these methods fail, the command will fail as well.
     """
-    def execute(self, options, project=None, **kwargs):
+    def execute(self, registry, options, project=None, **kwargs):
         """Wraps the user defined run method in a proper environment"""
         if not project:
             project = self.load_project(options)
         self.project = project
+        self.options = options
+        self.registry = registry
         self.logger.debug('Running "%s" command' % self.name)
         return_code = 0
+        if 'before' in self.events:
+            self.fire_event('before')
         try:
             self.run(project, options, **kwargs)
         except SystemExit, e:
@@ -111,8 +127,13 @@ class ProjectCommand(Command, ProjectMixin):
             self.logger.exception('An error occured executing command "%s"' %
                     self.__class__.__name__)
             return_code = 2
+        else:
+            if 'after' in self.events:
+                self.fire_event('after')
         finally:
             self.project = None
+            self.options = None
+            self.registry = None
         return return_code
 
     def template_context(self):
@@ -123,3 +144,6 @@ class ProjectCommand(Command, ProjectMixin):
     def run(self, project, options, **kwargs):
         """Must be overriden by subclasses"""
         raise NotImplementedError('This command does nothing')
+    
+    def fire_event(self, event):
+        self.registry.call_plugins(self.name, event, self.options, project=self.project)

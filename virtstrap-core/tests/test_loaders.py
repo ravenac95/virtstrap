@@ -15,7 +15,7 @@ def command_names_set(commands):
 
 class TestLoader(object):
     def setup(self):
-        commands.registry = commands.CommandRegistry()
+        commands.registry = commands.Registry()
 
     def teardown(self):
         commands.registry = None

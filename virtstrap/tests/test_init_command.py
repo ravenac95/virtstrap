@@ -13,7 +13,12 @@ from nose.plugins.attrib import attr
 from virtstrap import constants
 from virtstrap.testing import *
 from virtstrap.options import create_base_parser
-from virtstrap_system.commands.init import InitializeCommand
+from virtstrap_system.commands.init import (InitializeCommand 
+        as OriginalInitCommand)
+
+class InitializeCommand(OriginalInitCommand):
+    def fire_event(self, *args):
+        pass
 
 def test_initialize_command():
     command = InitializeCommand()
@@ -26,7 +31,7 @@ def test_run_initialize_command(fake_call):
         command = InitializeCommand()
         parser = create_base_parser()
         options = parser.parse_args(['--project-dir=.'])
-        return_code = command.execute(options)
+        return_code = command.execute(None, options)
         pip_bin = os.path.join(temp_directory, constants.VIRTSTRAP_DIR, 
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
@@ -46,7 +51,7 @@ def test_run_initialize_command_in_subdirectory(fake_call):
         command = InitializeCommand()
         parser = create_base_parser()
         options = parser.parse_args(['--project-dir=%s' % project_dir])
-        return_code = command.execute(options)
+        return_code = command.execute(None, options)
         pip_bin = os.path.join(project_dir, constants.VIRTSTRAP_DIR, 
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
@@ -69,7 +74,7 @@ def test_run_initialize_command_in_many_subdirectories(fake_call):
         parser = create_base_parser()
         options = parser.parse_args(['--project-dir=%s' % project_dir, 
             '--virtstrap-dir=%s' % virtstrap_dir])
-        return_code = command.execute(options)
+        return_code = command.execute(None, options)
         pip_bin = os.path.join(project_dir, constants.VIRTSTRAP_DIR, 
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])

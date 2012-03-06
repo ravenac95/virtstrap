@@ -15,8 +15,9 @@ class CommandDoesNotExist(Exception):
     pass
 
 class CommandRegistry(object):
-    def __init__(self):
+    def __init__(self, parent=None):
         self._registered_commands = {}
+        self._parent = parent # Parent Registry
 
     def register(self, command, name=None):
         """Registers a commandobject using name"""
@@ -39,7 +40,8 @@ class CommandRegistry(object):
         if not command_class:
             raise CommandDoesNotExist('Command "%s" does not exist' % name)
         command = command_class()
-        return command.execute(options, **kwargs)
+        registry = self._parent or self
+        return command.execute(registry, options, **kwargs)
 
     def list_commands(self):
         """Return a list of command names"""
@@ -57,8 +59,9 @@ class CommandRegistry(object):
         return parser_from_commands(self.commands_iter())
 
 class PluginRegistry(object):
-    def __init__(self):
+    def __init__(self, parent=None):
         self._plugins_map = {}
+        self._parent = parent
 
     def register(self, plugin):
         command_name = plugin.command
@@ -76,5 +79,34 @@ class PluginRegistry(object):
             if event in plugin.events:
                 plugin.execute(event, options, **kwargs)
 
+class Registry(object):
+    """The main interface to command and plugin registry"""
+    def __init__(self, command_registry_class=None,
+            plugin_registry_class=None):
+        command_registry_class =  command_registry_class or CommandRegistry
+        plugin_registry_class = plugin_registry_class or PluginRegistry
 
+        self.plugin_registry = plugin_registry_class(parent=self)
+        self.command_registry = command_registry_class(parent=self)
+        
+    def register_command(self, command, name=None):
+        self.command_registry.register(command, name)
 
+    def register_plugin(self, plugin):
+        self.plugin_registry.register(plugin)
+
+    def list_commands(self):
+        return self.command_registry.list_commands()
+
+    def run(self, name, options, **kwargs):
+        return self.command_registry.run(name, options, **kwargs)
+
+    def create_cli_parser(self):
+        return self.command_registry.create_cli_parser()
+
+    def call_plugins(self, command_name, event, options, **kwargs):
+        self.plugin_registry.call_plugins(command_name, event, options, 
+                **kwargs)
+
+    def commands_iter(self):
+        return self.command_registry.commands_iter()
