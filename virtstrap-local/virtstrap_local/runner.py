@@ -10,8 +10,8 @@ from virtstrap.loaders import *
 
 
 def create_loader(args):
-    main_collector = BuiltinCommandCollector('virtstrap_local.commands')
-    plugin_collector = PluginCommandCollector('virtstrap_local.commands')
+    main_collector = BuiltinCollector('virtstrap_local.commands')
+    plugin_collector = PluginCollector('virtstrap_local.plugins')
     return CommandLoader(collectors=[main_collector, plugin_collector])
 
 class VirtstrapProjectLocalRunner(VirtstrapRunner):

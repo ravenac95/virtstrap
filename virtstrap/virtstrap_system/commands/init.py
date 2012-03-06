@@ -7,16 +7,22 @@ The 'init' command
 import os
 import sys
 import shutil
+import tempfile
 from argparse import ArgumentParser
 from virtstrap import commands
 from virtstrap import constants
 from virtstrap.options import base_options_to_args
+from virtstrap.requirements import RequirementSet
 from virtstrap_system.loaders import call_project_command
 
 parser = ArgumentParser()
 parser.add_argument('project_dir', metavar='PROJECT_DIR',
         help="project's root directory",
         nargs='?', default='.')
+
+def process_plugins_config(raw_plugins):
+    requirement_set = RequirementSet.from_config_data(raw_plugins)
+    return requirement_set
 
 class InitializeCommand(commands.ProjectCommand):
     name = 'init'
@@ -62,6 +68,7 @@ class InitializeCommand(commands.ProjectCommand):
         # Install virtstrap into virtualenv
         # FIXME add later. with optimizations. This is really slow
         self.install_virtstrap(project)
+        self.install_virtstrap_plugins(project)
 
     def install_virtstrap(self, project):
         try:
@@ -86,6 +93,23 @@ class InitializeCommand(commands.ProjectCommand):
         except OSError:
             self.logger.error('An error occured with pip')
             sys.exit(2)
+
+    def install_virtstrap_plugins(self, project):
+        self.logger.info('Installing any virtstrap plugins')
+        plugin_set = project.process_config_section('plugins', 
+                process_plugins_config)
+        temp_reqs_path = self.write_temp_requirements_file(plugin_set)
+        project.call_bin('pip', ['install', '-r', temp_reqs_path], 
+                show_stdout=False)
+        os.remove(temp_reqs_path)
+        
+    def write_temp_requirements_file(self, requirement_set):
+        requirements_write = requirement_set.to_pip_str()
+        os_handle, temp_reqs_path = tempfile.mkstemp()
+        temp_reqs_file = open(temp_reqs_path, 'w')
+        temp_reqs_file.write(requirements_write)
+        temp_reqs_file.close()
+        return temp_reqs_path
         
     def wrap_activate_script(self, project):
         """Creates a wrapper around the original activate script"""

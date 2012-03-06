@@ -55,8 +55,8 @@ class ProjectFactory(commands.ProjectMixin):
 NONE_OBJ = object()
 
 def create_loader(args, project):
-    main_collector = BuiltinCommandCollector('virtstrap_system.commands')
-    plugin_collector = PluginCommandCollector('virtstrap_system.commands')
+    main_collector = BuiltinCollector('virtstrap_system.commands')
+    plugin_collector = PluginCollector('virtstrap_system.plugins')
     project_collector = ProjectCommandCollector(args, project)
     return CommandLoader(collectors=[main_collector, plugin_collector, 
         project_collector])

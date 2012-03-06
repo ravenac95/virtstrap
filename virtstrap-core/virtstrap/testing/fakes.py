@@ -10,6 +10,7 @@ import fudge
 from virtstrap.testing import *
 from virtstrap import constants
 from virtstrap import commands
+from virtstrap import plugins
 from virtstrap.project import Project
 from virtstrap.options import create_base_parser
 
@@ -22,7 +23,16 @@ def fake_command(name):
             return 0
     FakeCommand.name = name
     return FakeCommand
-    
+
+def fake_plugin(name, command='command', events=None):
+    events = events or ['event']
+    class FakeGeneratedPlugin(plugins.GeneratedPlugin, ShuntMixin):
+        pass
+    def fake_plugin_function(*args, **kwargs):
+        pass
+    return FakeGeneratedPlugin(name, command, events, fake_plugin_function)
+
+
 @contextmanager
 def temp_project():
     """Creates a temporary project directory within a temporary directory

@@ -65,7 +65,9 @@ class ProjectCommandCollector(Collector):
                             command_dict['name'], 
                             command_dict['description'])
                     collected_commands.append(command)
-        return collected_commands
+        # Collectors need to return commands and plugins but this collector
+        # does not collect plugins so return an empty list
+        return collected_commands, []
 
     def make_local_project_command(self, command_name,
             command_description):
