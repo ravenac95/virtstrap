@@ -4,7 +4,7 @@ Test Plugins
 
 """
 from nose.tools import raises
-from virtstrap.baseplugin import Plugin, create
+from virtstrap.plugins import Plugin, create
 
 def test_initialize_plugin():
     plugin = Plugin()
