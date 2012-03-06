@@ -32,11 +32,11 @@ Current Features
 - Provides a standard location for virtualenv
 - Provide a quick and simple way to activate the current environment
 - Generate a requirements file much like a Gemfile.lock
+- Provide a simple plugin system
 
 Future Features
 ---------------
 
-- Provide a simple plugin system
 - Allow for arbitrary environment variables to be set
 
 User Guide
@@ -56,4 +56,5 @@ Developer Guide
 .. toctree::
     :maxdepth: 2
 
+    plugins
     contributing

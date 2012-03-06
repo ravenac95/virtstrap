@@ -10,7 +10,7 @@ import fudge
 from virtstrap.testing import *
 from virtstrap import constants
 from virtstrap import commands
-from virtstrap import plugins
+from virtstrap import hooks
 from virtstrap.project import Project
 from virtstrap.options import create_base_parser
 
@@ -24,13 +24,13 @@ def fake_command(name):
     FakeCommand.name = name
     return FakeCommand
 
-def fake_plugin(name, command='command', events=None):
+def fake_hook(name, command='command', events=None):
     events = events or ['event']
-    class FakeGeneratedPlugin(plugins.GeneratedPlugin, ShuntMixin):
+    class FakeGeneratedHook(hooks.GeneratedHook, ShuntMixin):
         pass
-    def fake_plugin_function(*args, **kwargs):
+    def fake_hook_function(*args, **kwargs):
         pass
-    return FakeGeneratedPlugin(name, command, events, fake_plugin_function)
+    return FakeGeneratedHook(name, command, events, fake_hook_function)
 
 
 @contextmanager

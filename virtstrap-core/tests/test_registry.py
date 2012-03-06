@@ -9,7 +9,7 @@ class TestCommandRegistry(object):
     def setup(self):
         fake_parent = fudge.Fake()
         self.fake_parent = fake_parent
-        fake_parent.provides('call_plugins')
+        fake_parent.provides('call_hooks')
         self.registry = CommandRegistry(parent=fake_parent)
 
     def test_register_a_command(self):
@@ -91,9 +91,9 @@ class TestPluginRegistry(object):
         self.registry.register(handle_command1_events)
         self.registry.register(handle_command2_events)
         options = dict(event1_1=False, event2_1=False, event1_2=False)
-        self.registry.call_plugins('command1', 'event1', options)
-        self.registry.call_plugins('command1', 'event2', options)
-        self.registry.call_plugins('command2', 'event1', options)
+        self.registry.call_hooks('command1', 'event1', options)
+        self.registry.call_hooks('command1', 'event2', options)
+        self.registry.call_hooks('command2', 'event1', options)
 
         assert options['event1_1'], "Plugin was not run for command1, event1"
         assert options['event2_1'], "Plugin was not run for command1, event2"

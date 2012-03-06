@@ -7,7 +7,7 @@ The base plugin for virtstrap.
 from functools import wraps
 from virtstrap.log import logger
 
-class Plugin(object):
+class Hook(object):
     name = None
     command = None
 
@@ -18,7 +18,7 @@ class Plugin(object):
     def execute(self, event, options, **kwargs):
         """Wraps the user defined run method in the proper environment"""
         self.options = options
-        self.logger.debug('Running "%s" plugin for "%s" command' % 
+        self.logger.debug('Running "%s" hook for "%s" command' % 
                 (self.name, self.command))
         return_code = 0
         try:
@@ -26,7 +26,7 @@ class Plugin(object):
         except SystemExit, e:
             return_code = e.code
         except:
-            self.logger.exception('An error occured executing plugin "%s"' %
+            self.logger.exception('An error occured executing hook "%s"' %
                     self.__class__.__name__)
             return_code = 2
         finally:
@@ -35,11 +35,11 @@ class Plugin(object):
 
     def run(self, event, options, **kwargs):
         raise NotImplementedError('Please implement a run method '
-                'for this plugin')
+                'for this hook')
 
-class GeneratedPlugin(Plugin):
+class GeneratedHook(Hook):
     def __init__(self, name, command, events, runner):
-        super(GeneratedPlugin, self).__init__()
+        super(GeneratedHook, self).__init__()
         self.name = name
         self.command = command
         self.events = events
@@ -50,5 +50,5 @@ class GeneratedPlugin(Plugin):
 
 def create(command, events):
     def decorator(f):
-        return GeneratedPlugin(f.__name__, command, events, f)
+        return GeneratedHook(f.__name__, command, events, f)
     return decorator

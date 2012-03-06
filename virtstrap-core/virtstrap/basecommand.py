@@ -86,7 +86,7 @@ class Command(object):
         raise NotImplementedError('This command does nothing')
 
     def fire_event(self, event):
-        self.registry.call_plugins(self.name, event, self.options)
+        self.registry.call_hooks(self.name, event, self.options)
 
 class ProjectMixin(object):
     """A mixin that knows how to load projects"""
@@ -146,4 +146,4 @@ class ProjectCommand(Command, ProjectMixin):
         raise NotImplementedError('This command does nothing')
     
     def fire_event(self, event):
-        self.registry.call_plugins(self.name, event, self.options, project=self.project)
+        self.registry.call_hooks(self.name, event, self.options, project=self.project)

@@ -72,7 +72,7 @@ class PluginRegistry(object):
     def retrieve_plugins(self, command_name):
         return self._plugins_map.get(command_name, [])
 
-    def call_plugins(self, command_name, event, options, **kwargs):
+    def call_hooks(self, command_name, event, options, **kwargs):
         """Call the plugin it shouldn't return"""
         plugins = self.retrieve_plugins(command_name)
         for plugin in plugins:
@@ -92,7 +92,7 @@ class Registry(object):
     def register_command(self, command, name=None):
         self.command_registry.register(command, name)
 
-    def register_plugin(self, plugin):
+    def register_hook(self, plugin):
         self.plugin_registry.register(plugin)
 
     def list_commands(self):
@@ -104,8 +104,8 @@ class Registry(object):
     def create_cli_parser(self):
         return self.command_registry.create_cli_parser()
 
-    def call_plugins(self, command_name, event, options, **kwargs):
-        self.plugin_registry.call_plugins(command_name, event, options, 
+    def call_hooks(self, command_name, event, options, **kwargs):
+        self.plugin_registry.call_hooks(command_name, event, options, 
                 **kwargs)
 
     def commands_iter(self):
