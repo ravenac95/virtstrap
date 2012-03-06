@@ -11,6 +11,7 @@ class CommandsCommand(commands.Command):
     name = 'commands'
     description = 'Lists commands (Excludes self from commands)'
     parser = parser
+    events = []
 
     def run(self, options, **kwargs):
         collected_commands = self.collect_commands()

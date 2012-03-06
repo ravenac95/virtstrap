@@ -4,6 +4,7 @@ virtstrap.commands.install
 
 The 'install' command
 """
+import os
 import tempfile
 import subprocess
 from contextlib import contextmanager
@@ -27,8 +28,14 @@ class InstallCommand(commands.ProjectCommand):
         requirement_set = self.get_requirement_set(project)
         if requirement_set:
             temp_reqs_path = self.write_temp_requirements_file(requirement_set)
-            self.run_pip_install(project, temp_reqs_path)
-            self.freeze_requirements(project, requirement_set)
+            try:
+                self.run_pip_install(project, temp_reqs_path)
+            except:
+                raise
+            else:
+                self.freeze_requirements(project, requirement_set)
+            finally:
+                os.remove(temp_reqs_path)
 
     def get_requirement_set(self, project):
         requirement_set = project.process_config_section('requirements',

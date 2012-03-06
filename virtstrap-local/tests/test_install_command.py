@@ -99,5 +99,3 @@ class TestInstallCommand(object):
                 'test3==0.10.1', 'test5==1.4.3']
         for package in expected_packages:
             assert package in requirements_data
-
-

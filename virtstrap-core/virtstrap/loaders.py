@@ -11,6 +11,7 @@ import inspect
 import pkg_resources
 from virtstrap.log import logger
 from virtstrap import commands
+from virtstrap import hooks
 from virtstrap.utils import import_string
 
 class CommandLoader(object):
@@ -20,27 +21,35 @@ class CommandLoader(object):
 
     def load(self):
         """Collects all commands"""
+        registry = commands.registry
         for collector in self._collectors:
-            collected_commands = collector.collect()
+            collected_commands, collected_hooks = collector.collect()
             for command in collected_commands:
-                commands.registry.register(command)
+                registry.register_command(command)
+            for plugin in collected_hooks:
+                registry.register_hook(plugin)
 
 class Collector(object):
     def collect(self):
         raise NotImplementedError('Collector must define a collect method')
 
 class ModuleCollectionMixin(object):
-    def collect_commands_in_module(self, module):
+    def collect_in_module(self, module):
         collected_commands = []
+        collected_hooks = []
         for name, variable in module.__dict__.iteritems():
+            # Is the variable a class
             if inspect.isclass(variable):
                 bases = inspect.getmro(variable)
+                # is it a command class?
                 if commands.Command in bases:
                     collected_commands.append(variable)
-        return collected_commands
+            # Is the variable a hook instance
+            elif isinstance(variable, hooks.Hook):
+                collected_hooks.append(variable)
+        return collected_commands, collected_hooks
 
-
-class BuiltinCommandCollector(Collector, ModuleCollectionMixin):
+class BuiltinCollector(Collector, ModuleCollectionMixin):
     def __init__(self, location):
         self._location = location
 
@@ -54,6 +63,7 @@ class BuiltinCommandCollector(Collector, ModuleCollectionMixin):
         builtin_command_files = os.listdir(builtin_command_dir)
 
         collected_commands = []
+        collected_hooks = []
 
         for filename in builtin_command_files:
             if filename.endswith('.py') and not filename == '__init__.py':
@@ -66,17 +76,23 @@ class BuiltinCommandCollector(Collector, ModuleCollectionMixin):
                     logger.exception('Failed to collect builtin command '
                         'module "%s"' % filename)
                 else:
-                    collected_commands.extend(
-                            self.collect_commands_in_module(command_module))
-        return collected_commands
+                    command_list, hook_list = self.collect_in_module(
+                            command_module)
+                    collected_commands.extend(command_list)
+                    collected_hooks.extend(hook_list)
+        return collected_commands, collected_hooks
 
 
-class PluginCommandCollector(Collector, ModuleCollectionMixin):
+class PluginCollector(Collector, ModuleCollectionMixin):
     def __init__(self, entry_point):
         self._entry_point = entry_point
 
     def collect(self):
         collected_commands = []
-        for plugin in pkg_resources.iter_entry_points(self._entry_point):
-            collected_commands.extend(self.collect_commands_in_module(plugin))
-        return collected_commands
+        collected_hooks = []
+        for hook_entry in pkg_resources.iter_entry_points(self._entry_point):
+            hook = hook_entry.load()
+            command_list, hook_list = self.collect_in_module(hook)
+            collected_commands.extend(command_list)
+            collected_hooks.extend(hook_list)
+        return collected_commands, collected_hooks

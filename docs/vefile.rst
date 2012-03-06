@@ -47,13 +47,22 @@ up your project's repeatable environment, here are the sections you can set.
   useful section and one that you will probably use most. Requirements are
   explained in the next section, :ref:`vefile-requirements`
 
+- *plugins*: Defines the plugins just like you would define requirements. The
+  suggested way to define plugins is declaration **Style 1** (explained in 
+  :ref:`vefile-requirements`)
+
+  .. note::
+    The freezing of these requirements will be handled differently in the
+    future. At this time there is no freezing of the plugin requirements, 
+    this will be changed soon once a proper solution is determined.
+
 .. _vefile-requirements:
 
 The "requirements" Section
 --------------------------
 
 The requirements section of the VEfile allow you to define your project's
-dependencies. Currently there are three forms of dependency declaration. 
+dependencies. Currently there are three styles of dependency declaration. 
 
 1. *Package name* - This is the simplest declaration. All you do is use the
    package name so your VEfile would look like this:

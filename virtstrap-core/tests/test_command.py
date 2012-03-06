@@ -9,6 +9,14 @@ from virtstrap.testing import *
 from virtstrap.templating import temp_template_environment
 from virtstrap.basecommand import Command, ProjectMixin, ProjectCommand
 
+class NoEventCommand(Command):
+    def fire_event(self, *args):
+        pass
+
+class NoEventProjectCommand(ProjectCommand):
+    def fire_event(self, *args):
+        pass
+
 class FakeCommand(Command):
     name = 'fake'
     args = ['argument_one']
@@ -57,37 +65,37 @@ def test_run():
     
     The run command is wrapped in the execute method
     """
-    class FakeCommand(Command):
+    class FakeCommand(NoEventCommand):
         name = 'test'
         def run(self, *args, **kwargs):
             self.called = True
     command = FakeCommand()
-    assert command.execute('options') == 0
+    assert command.execute(None, 'options') == 0
     assert_called_flag(command)
 
 def test_execute_ignores_kwargs():
     """Test when a command's execute method ignores an unknown kwarg"""
-    class FakeCommand(Command):
+    class FakeCommand(NoEventCommand):
         name = 'test'
         def run(self, *args, **kwargs):
             self.called = True
     command = FakeCommand()
-    assert command.execute('options', test='test') == 0
+    assert command.execute(None, 'options', test='test') == 0
     assert_called_flag(command)
 
 def test_run_with_exception():
     """Test when a command's run method raises an exception."""
-    class FakeCommand(Command):
+    class FakeCommand(NoEventCommand):
         name = 'test'
         def run(self, *args, **kwargs):
             raise Exception('Forced Error')
     command = FakeCommand()
-    assert command.execute('options') == 2
+    assert command.execute(None, 'options') == 2
 
 @fudge.patch('virtstrap.basecommand.Project')
 def test_project_mixin_loads_project(FakeProject):
     """Test ProjectMixin"""
-    class FakeCommand(Command, ProjectMixin):
+    class FakeCommand(NoEventCommand, ProjectMixin):
         name = "test"
     FakeProject.expects('load').with_args('options').returns('proj')
     fake = FakeCommand()
@@ -97,7 +105,7 @@ def test_project_mixin_loads_project(FakeProject):
 @fudge.patch('virtstrap.basecommand.Project')
 def test_project_mixin_loads_project(FakeProject):
     """Test ProjectMixin"""
-    class FakeCommand(Command, ProjectMixin):
+    class FakeCommand(NoEventCommand, ProjectMixin):
         name = 'test'
     FakeProject.expects('load').with_args('options').returns('proj')
     fake = FakeCommand()
@@ -109,17 +117,17 @@ def test_project_command_execute_ignores_kwargs(FakeProject):
     """Test when a project command's execute method ignores an unknown kwarg"""
     (FakeProject.expects('load')
             .with_args('options').returns('proj'))
-    class FakeCommand(ProjectCommand):
+    class FakeCommand(NoEventProjectCommand):
         name = 'test'
         def run(self, project, options, **kwargs):
             pass
     command = FakeCommand()
-    assert command.execute('options', test='test') == 0
+    assert command.execute(None, 'options', test='test') == 0
 
 @fudge.patch('virtstrap.basecommand.Project')
 def test_project_command_execute_injected_project_kwargs(FakeProject):
     """Test when a project instance is injected into command via execute"""
-    class FakeCommand(ProjectCommand):
+    class FakeCommand(NoEventProjectCommand):
         name = 'test'
 
         def run(self, project, options, **kwargs):
@@ -127,26 +135,26 @@ def test_project_command_execute_injected_project_kwargs(FakeProject):
             assert project == 'project'
 
     command = FakeCommand()
-    assert command.execute('options', project='project') == 0
+    assert command.execute(None, 'options', project='project') == 0
     # Assert that called flag is set
     assert_called_flag(command)
 
 @fudge.patch('virtstrap.basecommand.Project')
 def test_project_command_runs_with_project(FakeProject):
-    """Test ProjectCommand runs correctly"""
-    class FakeProjectCommand(ProjectCommand):
+    """Test NoEventProjectCommand runs correctly"""
+    class FakeProjectCommand(NoEventProjectCommand):
         name = 'test'
         def run(self, project, options, **kwargs):
             assert project == 'proj'
     (FakeProject.expects('load')
             .with_args('options').returns('proj'))
     command = FakeProjectCommand()
-    return_code = command.execute('options')
+    return_code = command.execute(None, 'options')
     assert return_code == 0
 
 def test_project_command_runs_with_project_not_faked():
-    """Test ProjectCommand in a sandbox"""
-    class FakeProjectCommand(ProjectCommand):
+    """Test NoEventProjectCommand in a sandbox"""
+    class FakeProjectCommand(NoEventProjectCommand):
         name = 'test'
         def run(self, project, options, **kwargs):
             self.called = True
@@ -158,27 +166,27 @@ def test_project_command_runs_with_project_not_faked():
     fake_project_sub_directory = fixture_path('sample_project/lev1/lev2')
     with in_directory(fake_project_sub_directory):
         command = FakeProjectCommand()
-        return_code = command.execute(base_options)
+        return_code = command.execute(None, base_options)
         assert return_code == 0
         assert_called_flag(command)
 
 def test_command_creates_template_environment():
     """Test that command creates a template environment"""
     from jinja2 import Environment
-    class FakeCommand(Command):
+    class FakeCommand(NoEventCommand):
         name = 'test'
         def run(self, *args, **kwargs):
             self.called = True
             assert isinstance(self.template_environment(), Environment)
     command = FakeCommand()
-    return_code = command.execute('options')
+    return_code = command.execute(None, 'options')
     assert return_code == 0
     assert_called_flag(command)
 
 def test_command_renders_template_string():
     """Test that command renders a template string"""
     with temp_template_environment(fixture_path('templates')):
-        class FakeCommand(Command):
+        class FakeCommand(NoEventCommand):
             name = 'test'
             def run(self, *args, **kwargs):
                 self.called = True
@@ -190,14 +198,14 @@ def test_command_renders_template_string():
                 assert self.render_template_string(
                         '{{ testvalue }}', testvalue='foo') == 'foo'
         command = FakeCommand()
-        return_code = command.execute('options')
+        return_code = command.execute(None, 'options')
         assert return_code == 0
         assert_called_flag(command)
 
 def test_command_renders_template():
     """Test that command renders a template file"""
     with temp_template_environment(fixture_path('templates')):
-        class FakeCommand(Command):
+        class FakeCommand(NoEventCommand):
             name = 'test'
             def run(self, *args, **kwargs):
                 self.called = True
@@ -209,7 +217,7 @@ def test_command_renders_template():
                         'tests/test_with_context.sh.jinja', 
                         testvalue='bar') == 'bar'
         command = FakeCommand()
-        return_code = command.execute('options')
+        return_code = command.execute(None, 'options')
         assert return_code == 0
         assert_called_flag(command)
 
@@ -219,11 +227,11 @@ def test_project_command_renders_template(FakeProject):
     (FakeProject.expects('load')
             .with_args('options').returns('proj'))
     with temp_template_environment(fixture_path('templates')):
-        class FakeCommand(ProjectCommand):
+        class FakeCommand(NoEventProjectCommand):
             name = 'test'
             def run(self, project, options, **kwargs):
                 assert self.render_template_string('{{ project }}') == 'proj'
                 assert self.render_template(
                         'tests/test_project_template.sh.jinja') == 'proj'
         command = FakeCommand()
-        assert command.execute('options', test='test') == 0
+        assert command.execute(None, 'options', test='test') == 0
