@@ -29,3 +29,8 @@ supportfiles:
 	@cd virtstrap; rm virtstrap_support/virtstrap-*
 	@cd virtstrap-core; rm -r dist; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
 	@cd virtstrap-local; rm -r dist; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
+
+distribute:
+	@cd virtstrap; python setup.py sdist upload
+	@cd virtstrap-core; python setup.py sdist upload
+	@cd virtstrap-local; python setup.py sdist upload
