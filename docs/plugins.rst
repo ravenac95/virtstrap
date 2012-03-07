@@ -140,8 +140,8 @@ So what did this all do? Let's break it down!
    #. ``options`` - This is an object representing the command line argument
       options. It should be used as read-only.
 
-#. Finally we just print a message to the user (using a unrecommended method of
-   output more on this later)
+#. Finally we just print a message to the user (using an unrecommended method
+   of output... more on this later)
 
 The above example is the bare minimum you'd need to write to create a hook.
 Really, it's pretty lame. It simply prints the statement ``I appear after
