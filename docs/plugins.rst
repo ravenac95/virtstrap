@@ -85,7 +85,7 @@ this)::
         description="A new virtstrap plugin",
         long_description="""A new virtstrap plugin""",
         classifiers=[],
-        keywords='virtstrap ruby bundler virtualenv pip',
+        keywords='virtstrap',
         author='John Doe',
         author_email='someone@someemail-place.com',
         url='',
@@ -98,7 +98,7 @@ this)::
         ],
         entry_points={
             'virtstrap_local.plugins': [
-                'sample = virtstrap_ruby_bundler.plugin',
+                'plugin = virtstrap_new_plugin.plugin',
             ]
         },
     )
