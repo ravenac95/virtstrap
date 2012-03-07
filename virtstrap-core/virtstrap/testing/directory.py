@@ -2,7 +2,6 @@ from __future__ import with_statement
 import tempfile
 import os
 import shutil
-import virtualenv
 from contextlib import contextmanager
 
 class ChangedWorkingDirectory(object):
@@ -70,6 +69,7 @@ def in_directory(directory):
 
 @contextmanager
 def temp_virtualenv(*args, **kwargs):
+    import virtualenv
     with in_temp_directory() as temp_dir:
         virtualenv.create_environment(temp_dir, site_packages=False)
         yield temp_dir

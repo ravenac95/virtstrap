@@ -141,7 +141,7 @@ def call_subprocess(cmd, show_stdout=True,
             cwd=cwd, env=env)
     except Exception:
         e = sys.exc_info()[1]
-        logger.fatal(
+        logger.critical(
             "Error %s while executing command %s" % (e, cmd_desc))
         raise
     all_output = []
