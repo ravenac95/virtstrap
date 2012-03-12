@@ -9,6 +9,9 @@ import pip
 import pkg_resources
 from .requirements import RequirementSet
 
+LEVEL_STR = '  '
+COMMENT_PREFIX = '#::'
+
 def get_distributions(requirements, sys_path=None, working_set=None):
     retriever = DistributionRetriever(sys_path=sys_path, 
             working_set=working_set)
@@ -79,6 +82,51 @@ class RequirementsLocker(object):
         for dist in dists:
             self._collect_dependencies(dist, graph, retriever, parent=req)
 
+class LockedRequirement(object):
+    def __init__(self, name, lock_string):
+        self._name = name
+        self._lock_string = lock_string
+
+    def to_pip_str(self):
+        return self._lock_string
+
+class LockedRequirementsParser(object):
+    def __init__(self, graph=None):
+        self.graph = graph or RequirementsDependencyGraph()
+
+    def create_graph_from_string(self, locked_string):
+        from .requirements import Requirement
+        self.graph.add_requirement(Requirement('fake1'))
+        self.graph.add_dependency(Requirement('fake1'), Requirement('fake2'))
+
+class RequirementsJoiner(object):
+    """Joins locked requirements and the requirements set"""
+    def __init__(self, locked_string=None, requirement_set=None, 
+            locked_string_parser=None):
+        self._locked_string = locked_string
+        self._requirement_set = requirement_set
+        self._locked_string_parser = (locked_string_parser or 
+                LockedRequirementsParser())
+
+    def join_to_str(self, requirement_set=None, locked_string=None):
+        requirement_strings = []
+        if requirement_set:
+            requirement_strings = map(lambda a: a.to_pip_str(), 
+                    requirement_set)
+        locked_display = self.get_locked_display(locked_string)
+        locked_display_string = locked_display.show_dependencies(
+                requirement_set)
+        joined_string = "%s%s" % (locked_display_string, 
+                "\n".join(requirement_strings))
+        return joined_string
+
+    def get_locked_display(self, locked_string):
+        locked_graph, top_level_reqs = (self._locked_string_parser
+                .create_graph_from_string(locked_string))
+        locked_display = RequirementsGraphDisplay(locked_graph, 
+                used=top_level_requirements)
+        return locked_display
+
 class RequirementsDependencyGraph(object):
     """An adjacency list storage of the requirements graph
 
@@ -101,9 +149,21 @@ class RequirementsDependencyGraph(object):
         requirement = self._requirements.get(requirement_name.lower())
         return requirement
 
-    def get_dependencies(self, requirement):
+    def get_dependencies(self, requirement, ignore=None):
+        ignore = ignore or []
         requirement = self.resolve_requirement(requirement)
-        return self._adj_list[requirement.name.lower()]
+        deps = self._adj_list.get(requirement.name.lower())
+        if ignore:
+            old_deps = deps[:]
+            deps = [dep for dep in old_deps if not dep in ignore]
+        return deps
+
+    def get_all_dependencies(self, requirement):
+        requirement = self.resolve_requirement(requirement)
+        req2 = self.resolve_requirement('fake2')
+        req3 = self.resolve_requirement('fake3')
+        req4 = self.resolve_requirement('fake4')
+        return [req2, req3, req4]
 
     def resolve_requirement(self, requirement):
         if isinstance(requirement, (str, unicode)):
@@ -126,16 +186,16 @@ class RequirementsDependencyGraph(object):
         deps = self.get_dependencies(requirement)
         deps.append(dependency_req)
 
-LEVEL_STR = '  '
-
 class RequirementsGraphDisplay(object):
-    def __init__(self, graph):
+    def __init__(self, graph, used=None):
         self.graph = graph
-    
+        self.used = used or []
+
     def show_dependencies(self, requirements, stream=None, 
-            comment_doubles=False):
+            comment_doubles=False, used=None):
         stream = stream or StringIO()
-        used = []
+        used = used or self.used
+        used = self._build_used_list(requirements, used)
         for requirement in requirements:
             requirement = self.graph.resolve_requirement(requirement)
             self._build_dependency_string(requirement, stream, 
@@ -143,15 +203,19 @@ class RequirementsGraphDisplay(object):
         stream.seek(0)
         return stream.read()
 
+    def _build_used_list(self, requirements, used):
+        full_used = used[:]
+        for requirement in requirements:
+            requirement = self.graph.resolve_requirement(requirement)
+            full_used.append(requirement.name.lower())
+        return full_used
+
     def _build_dependency_string(self, requirement, stream, level=0, 
             comment_doubles=False, used=None):
-        extra_prefix = ''
-        if requirement.name.lower() in used:
-            extra_prefix = '#'
         used.append(requirement.name.lower())
         level_str = LEVEL_STR * level
         # Write the current requirement to the stream
-        stream.write('%s%s%s\n' % (level_str, extra_prefix,
+        stream.write('%s%s (%s)\n' % (level_str, requirement.name.lower(), 
             requirement.req))
         graph = self.graph
         # Get all of the current dependencies
