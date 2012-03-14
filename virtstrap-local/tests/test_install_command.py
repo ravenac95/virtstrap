@@ -22,6 +22,7 @@ def fake_requirements(names):
     for name in names:
         fake = fudge.Fake(name)
         fake.has_attr(name=name)
+        fake.provides('to_pip_str').returns(name)
         requirements.append(fake)
     return requirements
 
@@ -68,7 +69,6 @@ class TestInstallCommand(object):
         fake_req_set = SpecialFake()
         (project.__patch_method__('process_config_section')
                 .returns(fake_req_set))
-        fake_req_set.expects('to_pip_str').returns("test1")
         
         fake_req_set_iter = fake_requirements(['test1'])
         fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)
@@ -87,7 +87,6 @@ class TestInstallCommand(object):
         fake_req_set = SpecialFake()
         (project.__patch_method__('process_config_section')
                 .returns(fake_req_set))
-        fake_req_set.expects('to_pip_str').returns("test1\ntest5")
         
         fake_req_set_iter = fake_requirements(['test1', 'test5'])
         fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)

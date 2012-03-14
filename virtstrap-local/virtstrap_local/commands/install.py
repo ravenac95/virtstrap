@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from virtstrap import commands
 from virtstrap import constants
 from virtstrap.requirements import RequirementSet
-from virtstrap.locker import RequirementsLocker
+from virtstrap.locker import *
 
 def process_requirements_config(raw_requirements):
     requirement_set = RequirementSet.from_config_data(raw_requirements)
@@ -27,7 +27,10 @@ class InstallCommand(commands.ProjectCommand):
     def run(self, project, options, **kwargs):
         requirement_set = self.get_requirement_set(project)
         if requirement_set:
-            temp_reqs_path = self.write_temp_requirements_file(requirement_set)
+            # Check for lock file if it exists then use it.
+            locked_reqs_string = self.get_lock_file_requirement_set()
+            temp_reqs_path = self.write_temp_requirements_file(
+                    requirement_set, locked_reqs_string)
             try:
                 self.run_pip_install(project, temp_reqs_path)
             except:
@@ -42,14 +45,24 @@ class InstallCommand(commands.ProjectCommand):
                                 process_requirements_config)
         return requirement_set
 
-    def write_temp_requirements_file(self, requirement_set):
-        requirements_write = requirement_set.to_pip_str()
+    def write_temp_requirements_file(self, requirement_set, locked_reqs_string):
+        requirements_joiner = RequirementsJoiner()
+        requirements_write = requirements_joiner.join_to_str(
+                requirement_set=requirement_set,
+                locked_string=locked_reqs_string)
         os_handle, temp_reqs_path = tempfile.mkstemp()
         temp_reqs_file = open(temp_reqs_path, 'w')
         temp_reqs_file.write(requirements_write)
         temp_reqs_file.close()
         return temp_reqs_path
 
+    def get_lock_file_requirement_set(self):
+        try:
+            locked_requirements = open(constants.VE_LOCK_FILENAME, 'r')
+        except IOError:
+            return ''
+        return locked_requirements.read()
+        
     def run_pip_install(self, project, requirements_path):
         logger = self.logger
         logger.info('Building requirements in "%s"' % project.config_file)

@@ -53,10 +53,10 @@ class ProjectCommandCollector(Collector):
                 json_data = project.call_bin(virtstrap_bin, ['commands',
                     '--as-json'], collect_stdout=True)
             except OSError:
-                logger.debug('Found a possible project directory at %s'
+                logger.error('Found a possible project directory at %s'
                         ' but it was not configured correctly.' % 
                         project.path())
-                return collected_commands
+                return collected_commands, []
             if json_data:
                 commands_json = json.loads(json_data)
                 command_dicts = commands_json['commands']
