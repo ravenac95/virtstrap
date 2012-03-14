@@ -3,7 +3,7 @@
 Virtstrap Installation Guide
 ============================
 
-Recommended method
+Recommended Method
 ------------------
 
 Pip is the recommended method for installing virtstrap. Simply do::
@@ -15,7 +15,7 @@ execute the command above.
 
 Once it has completed all the correct dependencies should be installed. 
 
-Installation from source
+Installation From Source
 ------------------------
 
 Due to the complexity of installing from source. It is highly discouraged at

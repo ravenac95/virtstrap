@@ -1,6 +1,6 @@
 .. _contributing:
 
-Contributing to virtstrap
+Contributing to Virtstrap
 =========================
 
 In order to provide for the an easy setup for the user, virtstrap has been
@@ -17,7 +17,7 @@ repository, `virtstrap`_.
 - **virtstrap-local** - This package contains any commands that can only be used
   within a project and not throughout the system.
 
-Start developing!
+Start Developing!
 -----------------
 
 To start contributing to virtstrap is pretty simple. First, fork the
@@ -42,6 +42,7 @@ The virtstrap repository contains a Makefile that has the following commands:
 - ``install`` -  Installs virtstrap and virtstrap-core 
 - ``install-develop`` -  Installs virtstrap and virtstrap-core as 
   development versions (they're editable)
+- ``distribute`` - Push the current packages to the PyPI.
 
 .. _virtstrap: https://github.com/ravenac95/virtstrap
 .. _github: https://github.com/ravenac95/virtstrap

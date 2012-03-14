@@ -6,7 +6,7 @@ Virtstrap Quickstart Guide
 First, make sure you have virtstrap installed. If you do not, head on over to
 the :ref:`install`.
 
-Simplest virtstrap example
+Simplest Virtstrap Example
 --------------------------
 
 After virtstrap has been installed a command, vstrap, will be available on 
@@ -26,8 +26,8 @@ Finally, do::
 
 You now have a virtualenv for ``myproject``. 
 
-Virtstrap with basic configuration
-----------------------------------
+A Basic Configuration
+---------------------
 
 In the previous section we created the most simple type of virtstrap
 environment possible. However, without any configuration files virtstrap
@@ -64,12 +64,12 @@ virtual environment. In order for this to happen, virtstrap converted the
 requirements defined in VEfile to a pip requirements. Pip then takes over
 and installs all of the requirements.
 
-In the future, the VEfile will also generate a file called VEfile.lock which
-will contain the exact versions of the packages you just installed. This file
-like, Ruby Bundler's Gemfile.lock, should be added into your repository to
-create a truly repeatable project environment.
+The VEfile also generates a file called VEfile.lock which contains the exact
+versions of the packages you just installed. This file like, Ruby Bundler's
+Gemfile.lock, should be added into your repository to create a truly repeatable
+project environment.
 
-Repeatable environments. Because it matters
+Repeatable Environments. Because It Matters
 -------------------------------------------
 
 A repeatable environment is the main goal of virtstrap. As such let's take a

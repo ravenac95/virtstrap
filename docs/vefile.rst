@@ -7,7 +7,7 @@ The VEfile is a central point of virtstrap. It allows you to define project
 metadata, requirements, and eventually options for plugins. The VEfile is
 a YAML file that uses some unique conventions to define the configuration.
 
-It's just YAML
+It's Just YAML
 --------------
 
 To understand the VEfile here's a short introduction to it's structure. 
@@ -209,6 +209,17 @@ list of requirements installed will be ``sqlalchemy``, ``flask``, ``ipython``,
 ``python-memcached``, and ``mysql-python``. In addition, if you request for the
 value ``some_value`` you will get the value ``bar``, but that's only really 
 useful if you're developing a plugin for virtstrap.
+
+The Lock File
+-------------
+
+Virtstrap uses the VEfile to create a lock file, ``VEfile.lock`` based on the
+requirements in the VEfile. It'll store the exact versions you used in
+development so you can share your project with others and have it work
+identically everywhere. Eventually it'll do a better job of locking more than
+just the requirements, but for now that is the most basic need for a repeatable
+environment. The lock file should not be edited unless you really know what
+you're doing.
 
 VEfile Suggestions
 ------------------

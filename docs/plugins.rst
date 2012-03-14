@@ -22,7 +22,7 @@ functionality using two different objects:
 This quickstart guide goes through the creation of a hook. Eventually this will
 contain information on creating new commands. 
 
-A quick note about virtstrap's structure
+A Quick Note About virtstrap's Structure
 ----------------------------------------
 
 In order to understand plugins, you have to understand a bit about how
@@ -43,7 +43,7 @@ virtstrap works. Virtstrap has multiple packages explained below:
 
 So let's start by creating a new ``virtstrap-local`` plugin.
 
-Creating a virtstrap-local plugin
+Creating A virtstrap-local Plugin
 ---------------------------------
 
 Like mentioned previously, ``virtstrap-local`` is the suggested package to
