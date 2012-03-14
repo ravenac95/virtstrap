@@ -14,6 +14,11 @@ from virtstrap.testing import *
 from virtstrap.locker import *
 from tests import fixture_path
 
+def fake_req(name, editable=False):
+    fake = fudge.Fake()
+    fake.has_attr(name=name, req=name, editable=editable)
+    return fake
+
 def test_initialize_locker():
     locker = RequirementsLocker()
 
@@ -69,21 +74,18 @@ def test_initialize_dependency_graph():
 
 class FakeGraphMixin(object):
     def setup_graph(self):
-        fake_req1 = fudge.Fake()
-        fake_req1.has_attr(name='fake1', req='fake1')
-        fake_req2 = fudge.Fake()
-        fake_req2.has_attr(name='fake2', req='fake2')
-        fake_req3 = fudge.Fake()
-        fake_req3.has_attr(name='fake3', req='fake3')
-        fake_req4 = fudge.Fake()
-        fake_req4.has_attr(name='fake4', req='fake4')
-        fake_req5 = fudge.Fake()
-        fake_req5.has_attr(name='fake5', req='fake5')
+        fake_req1 = fake_req('fake1')
+        fake_req2 = fake_req('fake2')
+        fake_req3 = fake_req('fake3')
+        fake_req4 = fake_req('fake4')
+        fake_req5 = fake_req('fake5')
+        fake_req6 = fake_req('fake6', editable=True)
 
         graph = RequirementsDependencyGraph()
 
         graph.add_requirement(fake_req1)
         graph.add_requirement(fake_req5)
+        graph.add_requirement(fake_req6)
         graph.add_dependency(fake_req1, fake_req2)
         graph.add_dependency(fake_req2, fake_req3)
         graph.add_dependency(fake_req1, fake_req4)
@@ -108,9 +110,9 @@ class TestRequirementsDependencyGraphBasic(object):
         
     def test_add_distribution(self):
         fake_req1 = fudge.Fake()
-        fake_req1.has_attr(name='fake1')
+        fake_req1.has_attr(name='fake1', editable=False)
         fake_req2 = fudge.Fake()
-        fake_req2.has_attr(name='fake2')
+        fake_req2.has_attr(name='fake2', editable=False)
         graph = self.graph
         graph.add_requirement(fake_req1)
         graph.add_dependency('fake1', fake_req2)
@@ -155,7 +157,7 @@ class TestRequirementsGraphDisplay(FakeGraphMixin):
     
     def test_display_multiple_dependencies(self):
         display = self.display
-        dep_str = display.show_dependencies(['fake1', 'fake5'], 
+        dep_str = display.show_dependencies(['fake1', 'fake5', 'fake6'], 
                 comment_doubles=True)
         expected = textwrap.dedent("""
             fake1 (fake1)
@@ -166,6 +168,7 @@ class TestRequirementsGraphDisplay(FakeGraphMixin):
               fake2 (fake2)
                 fake3 (fake3)
               fake3 (fake3)
+            fake6 (-e fake6)
         """)
         dep_str = dep_str.strip()
         expected = expected.strip()
