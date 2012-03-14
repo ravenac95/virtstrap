@@ -203,8 +203,9 @@ class TestRequirementsJoiner(FakeGraphMixin):
             fake2
               fake3
         """)
-        fake_display = (self.joiner.__patch_method__('get_locked_display')
-                .returns_fake())
+        fake_display = fudge.Fake('fake_display')
+        (self.joiner.__patch_method__('get_locked_display')
+                .returns((fake_display, [])))
         fake_display.expects('show_dependencies').returns('fake2\n  fake3\n')
         requirements_list = ['fake1', 'fake5']
         req_set = RequirementSet.from_config_data(
@@ -220,6 +221,44 @@ class TestRequirementsJoiner(FakeGraphMixin):
         joined_str = joined_str.strip()
         expected = expected.strip()
         assert joined_str == expected
+
+    def test_join_requirements_with_duplicates(self):
+        data = textwrap.dedent("""
+            fake2 (fake2==2)
+              fake3 (fake3==3)
+            fake1 (fake1==1)
+        """)
+        requirements_list = ['fake2','fake1', 'fake5']
+        req_set = RequirementSet.from_config_data(
+                requirements_list)
+        joined_str = self.joiner.join_to_str(requirement_set=req_set, 
+                locked_string=data)
+        expected = textwrap.dedent("""
+        fake2==2
+          fake3==3
+        fake1==1
+        fake5
+        """)
+        joined_str = joined_str.strip()
+        expected = expected.strip()
+        assert joined_str == expected
+
+    def test_join_requirements_no_locked_string(self):
+        data = ''
+        requirements_list = ['fake2','fake1', 'fake5']
+        req_set = RequirementSet.from_config_data(
+                requirements_list)
+        joined_str = self.joiner.join_to_str(requirement_set=req_set, 
+                locked_string=data)
+        expected = textwrap.dedent("""
+        fake2
+        fake1
+        fake5
+        """)
+        joined_str = joined_str.strip()
+        expected = expected.strip()
+        assert joined_str == expected
+
 
 def test_initialize_locked_parser():
     locked_parser = LockedRequirementsParser()
@@ -237,6 +276,4 @@ class TestLockedRequirementsParser(object):
         fake2_arg = arg.has_attr(name='fake2')
         fake_graph.expects('add_requirement').with_args(fake1_arg)
         fake_graph.expects('add_dependency').with_args(fake1_arg, fake2_arg)
-        self.parser.create_graph_from_string('fake1\n  fake2\n')
-        
-
+        self.parser.create_graph_from_string('fake1 (fake1)\n  fake2 (fake2)\n')
