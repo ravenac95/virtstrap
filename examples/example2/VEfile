@@ -1,0 +1,11 @@
+plugins:
+  - virtstrap-ruby-bundler
+
+requirements:
+  - flask
+
+---
+profile: development
+
+requirements:
+  - ipython
