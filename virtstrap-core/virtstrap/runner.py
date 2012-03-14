@@ -78,6 +78,7 @@ class VirtstrapRunner(object):
         self.handle_global_options(cli_args)
         command = cli_args.command
         # Run the command
+        exit_code = 0
         try:
             exit_code = self.run_command(command, cli_args)
         except CommandDoesNotExist:
