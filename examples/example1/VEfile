@@ -1,0 +1,13 @@
+requirements:
+  - requests
+  - flask
+  - suds
+  - clint:
+    - git+git://github.com/kennethreitz/clint.git
+    - editable: true
+
+---
+profile: development
+
+requirements:
+  - ipython
