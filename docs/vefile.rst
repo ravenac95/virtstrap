@@ -47,6 +47,11 @@ up your project's repeatable environment, here are the sections you can set.
   useful section and one that you will probably use most. Requirements are
   explained in the next section, :ref:`vefile-requirements`
 
+- *environment*: Defines arbitrary environment variables for the project. These
+  environment variables are activated and deactivated with the virtual
+  environment. This section is explained a little later in 
+  :ref:`vefile-environment`.
+
 - *plugins*: Defines the plugins just like you would define requirements. The
   suggested way to define plugins is declaration **Style 1** (explained in 
   :ref:`vefile-requirements`)
@@ -132,6 +137,45 @@ Here's a full example of a requirements section that installs ``flask``,
         - editable: true
       - virtstrap-local:
         - https://github.com/ravenac95/virtstrap-local/tarball/v0.3.0
+
+.. _vefile-environment:
+
+The "environment" Section
+-------------------------
+
+The environment section is extremely simple. It is simply a yaml dictionary.
+Here's a short example:
+
+.. code-block:: yaml
+    
+    environment:
+      MY_ENV_VAR1: "SOME VALUE"
+      MY_ENV_VAR2: "SOME OTHER VALUE"
+
+Note, care is taken to ensure that environment variables are not destructive to
+the original environment, so don't be too afraid about changing any of the
+environment variables.
+
+For convenience the environment section allows you to replace the following
+values:
+
+- ``$PROJECT_DIR`` - Replaced by the project's root directory
+- ``$VE_DIR`` - Replaced by the ``.vs.env`` directory of the project
+- ``$BIN_DIR`` - Replaced by the environments bin directory
+
+Here's a short example of all their uses:
+
+.. code-block:: yaml
+    
+    environment:
+      MY_PROJ_DIR_STORAGE: "$PROJECT_DIR/storage"
+      MY_VE_DIR_STORAGE: "$VE_DIR/storage"
+      MY_BIN_DIR_STORAGE: "$BIN_DIR/storage"
+
+Depending on your project, arbitrary environment variables can be a really
+powerful tool. Please note, however, it these environment variables can only be
+accessed when using a virtual environment. Outside of that context it's not
+going to work (yet?)
 
 Profiles
 --------

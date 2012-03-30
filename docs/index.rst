@@ -33,11 +33,14 @@ Current Features
 - Provide a quick and simple way to activate the current environment
 - Generate a requirements file much like a Gemfile.lock
 - Provide a simple plugin system
+- Allows for arbitrary environment variables to be set
 
 Future Features
 ---------------
 
-- Allow for arbitrary environment variables to be set
+- Utilize `pippy`_ for faster installs
+
+.. _pippy: https://github.com/ravenac95/pippy
 
 User Guide
 ----------
