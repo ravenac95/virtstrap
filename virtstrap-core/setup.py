@@ -30,7 +30,11 @@ setup(
     zip_safe=False,
     platforms='*nix',
     install_requires=REQUIREMENTS,
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'virtstrap-tempfiler = virtstrap.tempfiler:main',
+        ],
+    },
     classifiers = [
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Developers',
