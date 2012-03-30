@@ -22,22 +22,14 @@ Main Goals
   allows for programs that aren't virtstrap to take advantage of the 
   the configuration file.
 
-Why I made virtstrap
---------------------
+Current Features
+----------------
 
-Essentially, there was a short period of time where I was a little 
-obsessed with using zc.buildout. However, I quickly found out that
-if I needed to quickly experiment a library it was not as simple
-as installing it through pip. In addition, I found buildout's support
-for a ``--no-site-packages`` like function to be unsatisfactory. One
-package on my Mac, ipython, was particularly finicky when using buildout.
-For those of you who have not experienced it, ipython does not work well
-with Leopard's version of libedit. However, installing readline via
-``easy_install`` is the only way to get it to work (oddly enough it won't
-work through a pip installation). So this forced me to come up with a 
-solution that would solve my problems of repeatability and flexibility.
-
-The result is virtstrap.
+- Provides a standard location for virtualenv
+- Provide a quick and simple way to activate the current environment
+- Generate a requirements file much like a Gemfile.lock
+- Provide a simple plugin system
+- Allows for arbitrary environment variables to be set
 
 Is this yet another build tool?
 -------------------------------
@@ -100,5 +92,3 @@ Links
 -----
 
 * Website Coming Soon!
-* `development version 
-  <http://github.com/ravenac95/virtstrap/zipball/develop#egg=virtstrap-dev>`_
