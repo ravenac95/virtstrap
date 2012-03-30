@@ -35,7 +35,7 @@ def test_run_initialize_command(fake_call):
         pip_bin = os.path.join(temp_directory, constants.VIRTSTRAP_DIR, 
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
-        expected_packages = ['simpleyaml', 'virtstrap-core', 
+        expected_packages = ['virtstrap-core', 
                 'virtstrap-local']
         for expected in expected_packages:
             assert expected in output
@@ -55,7 +55,7 @@ def test_run_initialize_command_in_subdirectory(fake_call):
         pip_bin = os.path.join(project_dir, constants.VIRTSTRAP_DIR, 
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
-        expected_packages = ['simpleyaml', 'virtstrap-core', 
+        expected_packages = ['virtstrap-core', 
                 'virtstrap-local']
         for expected in expected_packages:
             assert expected in output
@@ -78,7 +78,7 @@ def test_run_initialize_command_in_many_subdirectories(fake_call):
         pip_bin = os.path.join(project_dir, constants.VIRTSTRAP_DIR, 
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
-        expected_packages = ['simpleyaml', 'virtstrap-core',
+        expected_packages = ['virtstrap-core',
                 'virtstrap-local']
         for expected in expected_packages:
             assert expected in output
