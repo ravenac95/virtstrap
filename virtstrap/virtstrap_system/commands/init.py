@@ -120,7 +120,7 @@ class InitializeCommand(commands.ProjectCommand):
         shutil.copy(activate_path, old_activate_path)
 
         # Using a template, create the new one
-        new_activate_script = self.render_template('init/activate.sh.jinja')
+        new_activate_script = self.render_template('init/activate.sh.tmpl')
         activate_file = open(activate_path, 'w')
         activate_file.write(new_activate_script)
 
@@ -136,7 +136,7 @@ class InitializeCommand(commands.ProjectCommand):
         self.logger.info('Creating quick activate script')
         quick_activate_path = project.path(constants.QUICK_ACTIVATE_FILENAME)
         quick_activate_script = self.render_template(
-                'init/quickactivate.sh.jinja')
+                'init/quickactivate.sh.tmpl')
         quick_activate = open(quick_activate_path, 'w')
         quick_activate.write(quick_activate_script)
         quick_activate.close()
