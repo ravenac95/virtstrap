@@ -1,6 +1,58 @@
 #!/bin/bash
 source {{project.bin_path('ve_activate')}}
 
+VIRTSTRAP_USER_CUSTOM_VARS=
+export VIRTSTRAP_USER_CUSTOM_VARS
+
+# The separator for VIRTSTRAP_USER_CUSTOM_VARS
+SEPR=":"
+# The old variable prefix
+OLD_PFX="VS_OLD_"
+
+# Function for use with virtstrap-local environment
+add_custom_virtstrap_var () {
+    # Activates a custom variable
+
+    # Save current value if any
+    if eval "test \${$1+defined}";
+    then
+        eval "$OLD_PFX$1=\${$1}"
+        eval "export $OLD_PFX$1"
+    fi
+    # Set the new value
+    eval "$1=$2"
+    eval "export $1"
+    # Append to the list of custom variables
+    VIRTSTRAP_USER_CUSTOM_VARS="${VIRTSTRAP_USER_CUSTOM_VARS}${VIRTSTRAP_USER_CUSTOM_VARS:+$SEPR}$1" 
+    export VIRTSTRAP_USER_CUSTOM_VARS
+}
+
+# Function for use with virtstrap-local environment
+deactivate_custom_virtstrap_vars () {
+    # Deactivates any custom variables
+
+    # Save old IFS
+    OIFS=$IFS
+    # Set current IFS to loop through list
+    IFS=${SEPR}
+    for var_name in $VIRTSTRAP_USER_CUSTOM_VARS
+    do
+        # Check if we stored an old value for the variable
+        if eval "test \${$OLD_PFX$var_name+defined}";
+        then
+            eval "$var_name=\${$OLD_PFX$var_name}"
+            eval "unset $OLD_PFX$var_name"
+            eval "export $var_name"
+        # If no "$OLD_PFX*" variable exists then just unset the variable
+        else
+            eval "unset $var_name"
+        fi
+    done
+    unset VIRTSTRAP_USER_CUSTOM_VARS
+    # Reset IFS
+    IFS=$OIFS
+}
+
 # Tell the system we're in virtstrap
 VIRTSTRAP_ENV="{{project.env_path()}}"
 export VIRTSTRAP_ENV
@@ -8,6 +60,16 @@ export VIRTSTRAP_ENV
 # Store the current path to the current project
 VIRTSTRAP_PROJECT_DIR="{{project.path()}}"
 export VIRTSTRAP_PROJECT_DIR
+
+env_tempfile=`{{project.bin_path('virtstrap-tempfiler')}}`
+# Write extra environment to tempfile
+{{project.bin_path('virtstrap-local')}} environment $env_tempfile
+# Store file's contents
+extra_env=`cat $env_tempfile`
+# Remove the tempfile
+rm $env_tempfile
+# Evaluate the file's contents
+eval "$extra_env"
 
 # Save the deactivate function from virtualenv under a different name
 virtualenv_original_deactivate=`typeset -f deactivate | sed 's/deactivate/virtualenv_deactivate/g'`
@@ -24,6 +86,12 @@ deactivate () {
 
     unset VIRTSTRAP_ENV
     unset VIRTSTRAP_PROJECT_DIR
+    deactivate_custom_virtstrap_vars
+
+    # Remove custom functions
+    unset -f deactivate_custom_virtstrap_vars
+    unset -f add_custom_virtstrap_var
+
     if [ ! "$1" = "nondestructive" ]
     then
         # Remove this function
