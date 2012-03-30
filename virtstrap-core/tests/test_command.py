@@ -172,12 +172,12 @@ def test_project_command_runs_with_project_not_faked():
 
 def test_command_creates_template_environment():
     """Test that command creates a template environment"""
-    from jinja2 import Environment
+    from virtstrap.templating import TempitaEnvironment
     class FakeCommand(NoEventCommand):
         name = 'test'
         def run(self, *args, **kwargs):
             self.called = True
-            assert isinstance(self.template_environment(), Environment)
+            assert isinstance(self.template_environment(), TempitaEnvironment)
     command = FakeCommand()
     return_code = command.execute(None, 'options')
     assert return_code == 0
@@ -191,12 +191,12 @@ def test_command_renders_template_string():
             def run(self, *args, **kwargs):
                 self.called = True
                 assert self.render_template_string(
-                        '{{ command.name }}') == 'test'
+                        '{{command.name}}') == 'test'
                 assert self.render_template_string(
-                        '{{ options }}') == 'options'
+                        '{{options}}') == 'options'
                 # Test with a user defined context
                 assert self.render_template_string(
-                        '{{ testvalue }}', testvalue='foo') == 'foo'
+                        '{{testvalue}}', testvalue='foo') == 'foo'
         command = FakeCommand()
         return_code = command.execute(None, 'options')
         assert return_code == 0
@@ -211,11 +211,11 @@ def test_command_renders_template():
                 self.called = True
                 # Test with the default context
                 assert self.render_template(
-                        'tests/test_template.sh.jinja') == 'test::options'
+                        'tests/test_template.sh.tmpl').strip() == 'test::options'
                 # Test with a user defined context
                 assert self.render_template(
-                        'tests/test_with_context.sh.jinja', 
-                        testvalue='bar') == 'bar'
+                        'tests/test_with_context.sh.tmpl', 
+                        testvalue='bar').strip() == 'bar'
         command = FakeCommand()
         return_code = command.execute(None, 'options')
         assert return_code == 0
@@ -230,8 +230,8 @@ def test_project_command_renders_template(FakeProject):
         class FakeCommand(NoEventProjectCommand):
             name = 'test'
             def run(self, project, options, **kwargs):
-                assert self.render_template_string('{{ project }}') == 'proj'
+                assert self.render_template_string('{{project}}') == 'proj'
                 assert self.render_template(
-                        'tests/test_project_template.sh.jinja') == 'proj'
+                        'tests/test_project_template.sh.tmpl').strip() == 'proj'
         command = FakeCommand()
         assert command.execute(None, 'options', test='test') == 0

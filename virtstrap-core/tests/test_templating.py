@@ -17,7 +17,7 @@ def fake_environment():
 
 def test_get_environment():
     env = environment()
-    assert isinstance(env, Environment)
+    assert isinstance(env, TempitaEnvironment)
 
 def test_environment_get_template():
     env = environment()
