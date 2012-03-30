@@ -4,7 +4,6 @@ Test Templating
 """
 import fudge
 from nose.tools import raises
-from jinja2 import Environment
 from virtstrap.templating import *
 from tests import fixture_path
 
@@ -24,7 +23,6 @@ def test_environment_get_template():
     template = env.get_template('init/activate.sh.tmpl')
 
 def test_test_environment_context():
-    from jinja2 import FileSystemLoader
     templates_path = fixture_path('templates')
     with temp_template_environment(templates_path):
         env = environment()
