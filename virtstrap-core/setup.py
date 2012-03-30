@@ -13,9 +13,6 @@ VERSION = "0.3.4-dev"
 # Installation requirements
 REQUIREMENTS = []
 
-if sys.version_info < (2, 7):
-    REQUIREMENTS.append('argparse>=1.2.1')
-
 setup(
     name="virtstrap-core",
     version=VERSION,
