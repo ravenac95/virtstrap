@@ -77,7 +77,7 @@ class TestPluginRegistry(object):
         self.registry = PluginRegistry()
 
     def test_run_a_plugin(self):
-        from virtstrap.baseplugin import create
+        from virtstrap.hooks import create
         @create('command1', ['event1', 'event2'])
         def handle_command1_events(event, options, **kwargs):
             assert event in ['event1', 'event2']
