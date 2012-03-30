@@ -1,0 +1,6 @@
+# A simple dict of environment variables
+environment:
+  DOG_FOOD: "WOOF WOOF"
+  MY_APP_HOME: "$VE_DIR/app"
+  MY_PROJECT_HOME: "$PROJECT_DIR"
+  MY_BIN_HOME: "$BIN_DIR"
