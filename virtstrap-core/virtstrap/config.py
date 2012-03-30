@@ -11,7 +11,7 @@ try:
     import yaml
 except ImportError:
     # Fallback to simpleyaml if PyYAML isn't found
-    import simpleyaml as yaml
+    from packages import simpleyaml as yaml
 
 class ConfigurationError(Exception):
     pass
