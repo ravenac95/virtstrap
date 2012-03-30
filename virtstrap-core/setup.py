@@ -12,7 +12,6 @@ VERSION = "0.3.4-dev"
 
 # Installation requirements
 REQUIREMENTS = [
-    'jinja2',
     'simpleyaml',
 ]
 

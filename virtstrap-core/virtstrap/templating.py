@@ -7,6 +7,7 @@ Defines tools for dealing with templating.
 
 from os import path
 from contextlib import contextmanager
+import constants
 from packages.tempita import Template as TempitaTemplate
 
 _global_environment = None
@@ -34,7 +35,8 @@ def environment():
     global _global_environment
     if not _global_environment:
         _global_environment = TempitaEnvironment(
-                loaders=[PackageLoader('virtstrap', 'templates')])
+                loaders=[PackageLoader('virtstrap', 'templates')],
+                namespace=dict(constants=constants))
     return _global_environment
 
 @contextmanager

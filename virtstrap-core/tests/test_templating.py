@@ -21,16 +21,16 @@ def test_get_environment():
 
 def test_environment_get_template():
     env = environment()
-    template = env.get_template('init/activate.sh.jinja')
+    template = env.get_template('init/activate.sh.tmpl')
 
 def test_test_environment_context():
     from jinja2 import FileSystemLoader
     templates_path = fixture_path('templates')
     with temp_template_environment(templates_path):
         env = environment()
-        env.get_template('tests/test_template.sh.jinja')
+        env.get_template('tests/test_template.sh.tmpl')
     env = environment()
-    template = env.get_template('init/activate.sh.jinja')
+    template = env.get_template('init/activate.sh.tmpl')
 
 def test_tempita_environment():
     env = TempitaEnvironment()

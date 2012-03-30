@@ -36,7 +36,7 @@ def test_run_initialize_command(fake_call):
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
         expected_packages = ['simpleyaml', 'virtstrap-core', 
-                'virtstrap-local', 'Jinja2']
+                'virtstrap-local']
         for expected in expected_packages:
             assert expected in output
         assert return_code == 0
@@ -56,7 +56,7 @@ def test_run_initialize_command_in_subdirectory(fake_call):
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
         expected_packages = ['simpleyaml', 'virtstrap-core', 
-                'virtstrap-local', 'Jinja2']
+                'virtstrap-local']
         for expected in expected_packages:
             assert expected in output
         assert return_code == 0
@@ -79,7 +79,7 @@ def test_run_initialize_command_in_many_subdirectories(fake_call):
                 'bin', 'pip')
         output, ret = call_and_capture([pip_bin, 'freeze'])
         expected_packages = ['simpleyaml', 'virtstrap-core',
-                'virtstrap-local', 'Jinja2']
+                'virtstrap-local']
         for expected in expected_packages:
             assert expected in output
         assert return_code == 0
