@@ -11,9 +11,7 @@ from setuptools import setup, find_packages
 VERSION = "0.3.4-dev"
 
 # Installation requirements
-REQUIREMENTS = [
-    'simpleyaml',
-]
+REQUIREMENTS = []
 
 if sys.version_info < (2, 7):
     REQUIREMENTS.append('argparse>=1.2.1')
