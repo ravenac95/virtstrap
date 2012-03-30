@@ -8,7 +8,7 @@ import os
 import sys
 import shutil
 import tempfile
-from argparse import ArgumentParser
+from virtstrap.argparse import ArgumentParser
 from virtstrap import commands
 from virtstrap import constants
 from virtstrap.options import base_options_to_args

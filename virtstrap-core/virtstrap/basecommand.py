@@ -6,7 +6,7 @@ This module contains both the Command and ProjectCommand classes. These
 classes are used for creating new commands in virtstrap.
 """
 
-from argparse import ArgumentParser
+from .argparse import ArgumentParser
 from virtstrap.log import logger
 from virtstrap.templating import environment
 from virtstrap.project import Project

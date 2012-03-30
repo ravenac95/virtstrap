@@ -7,7 +7,7 @@ Defines various tools for dealing with command line options.
 
 import sys
 import pkg_resources
-from argparse import ArgumentParser
+from .argparse import ArgumentParser
 from virtstrap import constants
 from virtstrap.exceptions import *
 from virtstrap.log import logger

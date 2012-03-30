@@ -1,5 +1,5 @@
 import json
-from argparse import ArgumentParser
+from virtstrap.argparse import ArgumentParser
 from virtstrap import commands
 from virtstrap.log import logger
 
