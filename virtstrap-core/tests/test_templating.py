@@ -8,6 +8,13 @@ from jinja2 import Environment
 from virtstrap.templating import *
 from tests import fixture_path
 
+def fake_environment():
+    fake_env = fudge.Fake('TempitaEnvironment')
+    fake_env.provides('get_template').returns('template')
+    fake_env.provides('get_tempita_template').returns('template')
+    fake_env.has_attr(namespace={})
+    return fake_env
+
 def test_get_environment():
     env = environment()
     assert isinstance(env, Environment)
@@ -36,7 +43,6 @@ class TestTempitaEnvironment(object):
         fake_loader = fudge.Fake()
         self.env.add_loader(fake_loader)
         return fake_loader
-
     
     @fudge.test
     def test_add_loader(self):
@@ -54,6 +60,14 @@ class TestTempitaEnvironment(object):
         (fake_loader.expects('get_template').with_args('name2', self.env)
                 .returns(None))
         self.env.get_template('name2')
+
+    @fudge.patch('virtstrap.templating.Template')
+    def test_from_string(self, fake_template_class):
+        source = '{{hello}}'
+        (fake_template_class.expects('from_string')
+                .with_args(source, self.env).returns('template'))
+        template = self.env.from_string(source)
+        assert template == 'template'
 
 def test_template():
     template = Template('template')
@@ -78,11 +92,6 @@ def test_loader():
     template = loader.get_template('tests/test_template.tmpl', None)
     #assert template.render(dict(name="hello")) == "hello"
 
-def fake_environment():
-    fake_env = fudge.Fake('TempitaEnvironment')
-    fake_env.provides('get_template').returns('template')
-    fake_env.provides('get_tempita_template').returns('template')
-    return fake_env
 
 @fudge.patch('virtstrap.templating.Template')
 def test_loader_load_template_file(fake_template_class):
@@ -93,13 +102,23 @@ def test_loader_load_template_file(fake_template_class):
     template = loader.load_template_file('path', fake_env)
     assert template == 'template'
 
+@fudge.patch('virtstrap.templating.Template')
+def test_loader_load_template_string(fake_template_class):
+    loader = TemplateLoader()
+    fake_env = fudge.Fake()
+    fake_env.has_attr(get_template='something')
+    (fake_template_class.expects('from_string')
+            .with_args('sometemplate', fake_env).returns('template'))
+    template = loader.load_template_string('sometemplate', fake_env)
+    assert template == 'template'
+
 def test_file_system_loader():
     loader = FileSystemLoader(fixture_path('templates'))
     fake_env = fake_environment()
     template = loader.get_template('tests/test_template.tmpl', fake_env)
     assert template is not None
     
-class TestHighLevelTempitaTemplate(object):
+class TestTempitaEnvironmentWithFileSystem(object):
     def setup(self):
         template_path = fixture_path('templates')
         loaders = [FileSystemLoader(template_path)]
@@ -115,3 +134,20 @@ class TestHighLevelTempitaTemplate(object):
         rendered = template.render(dict(parent_name="parent", 
             name="child")).strip()
         assert rendered == 'parent\nchild'
+
+class TestTempitaEnvironmentWithPackages(object):
+    def setup(self):
+        from virtstrap import constants
+        loaders = [PackageLoader('virtstrap', 'templates')]
+        self.env = TempitaEnvironment(loaders=loaders, 
+                namespace=dict(constants=constants))
+
+    def test_render_template(self):
+        template = self.env.get_template('init/activate.sh.tmpl')
+
+    def test_render_string_with_constants(self):
+        from virtstrap import constants
+        template = self.env.from_string('{{constants.VE_FILENAME}}')
+        rendered = template.render().strip()
+        assert rendered == constants.VE_FILENAME
+
