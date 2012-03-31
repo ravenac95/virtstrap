@@ -61,6 +61,6 @@ class EnvironmentCommand(commands.ProjectCommand):
 
     def write_environment_var(self, output, variable, value):
         # Use a temp_var so we don't have to escape
-        output.write('temp_var="%s"\n' % value)
-        output.write('add_custom_virtstrap_var %s $temp_var\n' % variable)
+        value = value.replace(" ", "\ ")
+        output.write('add_custom_virtstrap_var %s "%s"\n' % (variable, value))
         #output.write('export %s\n' % variable)
