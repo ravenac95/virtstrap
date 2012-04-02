@@ -29,6 +29,7 @@ class EnvironmentCommand(commands.ProjectCommand):
 
     def process_environment_config(self, raw_environment):
         project = self.project
+        raw_environment = raw_environment or {}
         replacement_vars = {
             '$VE_DIR': project.env_path(),
             '$BIN_DIR': project.bin_path(),
