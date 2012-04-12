@@ -38,7 +38,7 @@ class InitializeCommand(commands.ProjectCommand):
             project = self.load_project(options)
         self.project = project
         self.ensure_project_directory(project)
-        self.create_virtualenv(project)
+        self.create_virtualenv(project, options)
         self.wrap_activate_script(project)
         self.create_quick_activate_script(project)
         self.run_install_for_project(project, options)
@@ -48,7 +48,7 @@ class InitializeCommand(commands.ProjectCommand):
         if not os.path.exists(project_dir):
             os.makedirs(project_dir)
 
-    def create_virtualenv(self, project):
+    def create_virtualenv(self, project, options):
         """Create virtual environment in the virtstrap directory"""
         import virtualenv
         virtstrap_dir = project.env_path()
@@ -69,6 +69,7 @@ class InitializeCommand(commands.ProjectCommand):
         # FIXME add later. with optimizations. This is really slow
         self.install_virtstrap(project)
         self.install_virtstrap_plugins(project)
+        self.setup_config_folder(project, options)
 
     def install_virtstrap(self, project):
         try:
@@ -93,6 +94,20 @@ class InitializeCommand(commands.ProjectCommand):
         except OSError:
             self.logger.error('An error occured with pip')
             sys.exit(2)
+
+    def setup_config_folder(self, project, options):
+        # Create the folder
+        config_path = project.env_path('config')
+        if not os.path.isdir(config_path):
+            os.makedirs(config_path)
+
+        # Create the profiles config
+        profiles_file_path = os.path.join(config_path, 'profiles')
+        profiles_file = open(profiles_file_path, 'w')
+        
+        profiles_string = ",".join(options.profiles)
+        profiles_file.write(profiles_string)
+        profiles_file.close()
 
     def install_virtstrap_plugins(self, project):
         self.logger.info('Installing any virtstrap plugins')

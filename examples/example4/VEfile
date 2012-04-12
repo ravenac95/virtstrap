@@ -1,0 +1,17 @@
+environment:
+  DG_A: A
+  DG_B: B
+
+---
+profile: development
+
+environment:
+  DG_C: C
+
+---
+profile: production
+
+environment:
+  DG_A: OA
+  DG_C: OC
+  DG_D: D
