@@ -18,6 +18,7 @@ import json
 import os, sys
 import platform
 import urllib
+import textwrap
 
 VIRTUALENV_INSTALLED = True
 try:
@@ -34,7 +35,7 @@ if platform.system() == "Windows":
 ##########################################
 EXIT_WITH_ERROR = 1
 EXIT_NORMALLY = 0
-VIRTUALENV_PROMPT_TEMPLATE = "({0}env) "
+VIRTUALENV_PROMPT_TEMPLATE = "(%senv) "
 DEFAULT_SETTINGS_FILENAME = "vsettings.json"
 
 DEFAULT_SETTINGS = dict(
@@ -68,7 +69,7 @@ def yes_no_input(prompt, default=True):
     return result
 
 def raw_input_with_default(prompt, default_input_string="['']"):
-    return raw_input("{0} {1}:".format(prompt, default_input_string))
+    return raw_input("%s %s:" % (prompt, default_input_string))
 
 ##########################################
 # Exit functions                         #
@@ -90,11 +91,11 @@ def in_virtualenv():
         return True
     return False
 
-def find_file_or_skip(file, not_found_string="'{0}' not found."):
+def find_file_or_skip(file, not_found_string="'%s' not found."):
     file_found = True
     if not os.path.isfile(file):
         file_found = False
-        print not_found_string.format(file)
+        print not_found_string % file
         if options.interactive:
             exit_with_error()
         else:
@@ -137,8 +138,8 @@ def make_current_settings(settings_filename, default_settings=None):
         settings_file = open(settings_filename)
     except IOError:
         #If file isn't found tell the user and exit with error
-        print ("A settings file is required. Could not find {0}"
-                .format(settings_filename))
+        print ("A settings file is required. Could not find %s"
+                % settings_filename)
         exit_with_error()
     # Load json from file. (The file, currently, must be json)
     user_defined_settings = json.load(settings_file)
@@ -159,7 +160,7 @@ def make_current_settings(settings_filename, default_settings=None):
     # There are some built in defaults
 
     # Create the default virtualenv prompt using the package name
-    prompt = VIRTUALENV_PROMPT_TEMPLATE.format(package_name)
+    prompt = VIRTUALENV_PROMPT_TEMPLATE % package_name
     current_settings['prompt'] = prompt
 
     # Add the user defined settings to the new settings dictionary
@@ -181,8 +182,7 @@ def pip_requirements_builder(**kwargs):
         exit_with_error()
     
     if find_file_or_skip(pip_requirements_file):
-        pip_bin = "{0}/bin/pip".format(
-                virtualenv_dir_abspath)
+        pip_bin = "%s/bin/pip" % virtualenv_dir_abspath
         pip_command = "install"
         call([pip_bin, "install", "-r", pip_requirements_file])
 
@@ -201,13 +201,13 @@ def buildout_builder(**kwargs):
     buildout_cfg = settings.get('buildout_config_file', 'buildout.cfg')
     buildout_cfg_found = find_file_or_skip(buildout_cfg, 
             not_found_string=("Buildout needs the specified buildout config "
-                "file ({0}) present"))
+                "file (%s) present"))
     
     # Download bootstrap.py
     if not os.path.isfile(bootstrap_py):
         urllib.urlretrieve(settings['buildout_bootstrap_url'], bootstrap_py)
     if not os.path.isfile(bootstrap_py):
-        print "Error Downloading {0}".format(bootstrap_py)
+        print "Error Downloading %s" % bootstrap_py
         exit_with_error()
     
     # Get virtualenv interpreter to use for bootstrapping
@@ -249,7 +249,7 @@ def create_virtualenv():
     # Create a virtual environment directory
     virtualenv_dir = settings['virtualenv_dir']
     virtualenv_dir_abspath = get_virtualenv_dir_abspath()
-    print "Creating Virtual Environment in {0}".format(virtualenv_dir_abspath)
+    print "Creating Virtual Environment in %s" % virtualenv_dir_abspath
     virtualenv.create_environment(settings['virtualenv_dir'], 
             site_packages=settings['use_site_packages'], 
             prompt=settings['prompt'])
@@ -263,8 +263,14 @@ def quick_activation_script(virtualenv_dir, file="quickactivate.sh",
     """Builds a virtualenv activation script shortcut"""
     quick_activate_filename = os.path.join(base_path, file)
     quick_activate_file = open(quick_activate_filename, 'w')
-    quick_activate_file.writelines(["#!/bin/bash\n", 
-        "source {0}/bin/activate".format(virtualenv_dir)])
+    quick_activate_file.write(textwrap.dedent("""
+        #!/bin/bash 
+        . %(virtualenv_dir)s/bin/activate
+
+        virtualenv_original_deactivate=`typeset -f deactivate | sed 's/deactivate/vsdeactivate/g'`
+        eval "$virtualenv_original_deactivate"
+        unset -f deactivate >/dev/null 2>&1
+    """ % dict(virtualenv_dir=virtualenv_dir)))
     quick_activate_file.close()
 
 def run_build():
@@ -273,7 +279,7 @@ def run_build():
     for env_type in env_types:
         builder = ENVIRONMENT_TYPE_BUILDERS.get(env_type)
         if not builder:
-            print "env_type: {0}. Does not exist".format(env_type)
+            print "env_type: %s. Does not exist" % env_type
             if not options.interactive:
                 exit_with_error()
             else:
@@ -302,8 +308,8 @@ parser = OptionParser()
 parser.add_option("-n", "--no-build", dest="no_build",
         help="Only setup virtual environment")
 parser.add_option("-s", "--install-settings", dest="install_settings",
-        help=("The settings JSON file defaults to {0}"
-            .format(DEFAULT_SETTINGS_FILENAME)), 
+        help=("The settings JSON file defaults to %s"
+            % DEFAULT_SETTINGS_FILENAME), 
         default=DEFAULT_SETTINGS_FILENAME)
 parser.add_option("-i", "--interactive", dest="interactive",
         help="Turns on interactivity", 
@@ -331,7 +337,7 @@ def main():
     virtstrap_command = VIRTSTRAP_COMMANDS.get(command_name)
     # If the virtstrap command doesn't exist then exit with error
     if not virtstrap_command:
-        print "'{0}' is not a valid command".format(command_name)
+        print "'%s' is not a valid command" % command_name
         exit_with_error()
     virtstrap_command()
     exit_normally()
