@@ -32,18 +32,21 @@ def fake_hook(name, command='command', events=None):
         pass
     return FakeGeneratedHook(name, command, events, fake_hook_function)
 
-
 @contextmanager
-def temp_project():
+def temp_project(change_working_dir=True):
     """Creates a temporary project directory within a temporary directory
     
     This is useful for testing ProjectCommands.
     """
     base_parser = create_base_parser()
     options = base_parser.parse_args(args=[])
-    with in_temp_directory() as temp_dir:
-        os.mkdir(constants.VIRTSTRAP_DIR)
-        virtualenv.create_environment(constants.VIRTSTRAP_DIR, 
+    dir_context = in_temp_directory
+    if not change_working_dir: 
+        dir_context = temp_directory
+    with dir_context() as temp_dir:
+        vs_dir_path = os.path.join(temp_dir, constants.VIRTSTRAP_DIR)
+        os.mkdir(vs_dir_path)
+        virtualenv.create_environment(vs_dir_path,
                 site_packages=False)
         options.project_dir = temp_dir
         project = FakeProject.load(options)

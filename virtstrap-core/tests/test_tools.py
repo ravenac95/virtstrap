@@ -82,6 +82,7 @@ def test_temp_project():
     from virtstrap.project import Project
     with temp_project() as info:
         project, options, temp_dir = info
+        assert os.getcwd() == temp_dir, "Current directory is not correct"
         assert os.path.exists(temp_dir)
         assert options.virtstrap_dir == constants.VIRTSTRAP_DIR
         assert options.project_dir == temp_dir
@@ -93,6 +94,23 @@ def test_temp_project():
         # Test the FakeProject
         project.__patch_method__('bin_path').returns('hello')
         assert project.bin_path() == 'hello'
+    assert not os.path.exists(temp_dir)
+
+@attr('slow')
+@fudge.test
+def test_temp_project_not_in_directory():
+    from virtstrap.project import Project
+    with temp_project(change_working_dir=False) as info:
+        project, options, temp_dir = info
+        assert os.getcwd() != temp_dir, "Current directory is not correct"
+        assert os.path.exists(temp_dir)
+        assert options.virtstrap_dir == constants.VIRTSTRAP_DIR
+        assert options.project_dir == temp_dir
+        assert project.path() == temp_dir
+        # Make sure virtualenv did it's job
+        assert os.path.exists(project.bin_path('pip'))
+        assert isinstance(project, Project)
+        assert isinstance(project, FakeProject)
     assert not os.path.exists(temp_dir)
 
 def test_context_user():
