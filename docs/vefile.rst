@@ -173,7 +173,7 @@ Here's a short example of all their uses:
       MY_BIN_DIR_STORAGE: "$BIN_DIR/storage"
 
 Depending on your project, arbitrary environment variables can be a really
-powerful tool. Please note, however, it these environment variables can only be
+powerful tool. Please note, however, these environment variables can only be
 accessed when using a virtual environment. Outside of that context it's not
 going to work (yet?)
 
@@ -185,10 +185,12 @@ profiles. In virtstrap, a profile is a particular type of environment you'd
 like to setup. These types of environments could be something like
 *development*, *testing*, *staging*, *production*, etc. Virtstrap makes little
 assumptions about the names you with to use for profiles. The *development*
-profile is the single exception. Virtstrap will always use the *development*
-profile if you do not specify a different profile. The reason for this is that
-most of your time with virtstrap will be spent developing code, so it should be
-simple.
+profile is the single exception. When initializing a virtstrap project, the
+*development* profile will be used by default do not specify a different
+profile. The reason for this is that most of your time with virtstrap will be
+spent developing code, so it should be simple. For convenience, virtstrap will
+remember the profile you used during initialization and will continue to use it
+unless you specify otherwise. This feature will be explained below.
 
 In order to define profiles, VEfile utilizes YAML's concept of documents. Each
 document in a YAML file is separated by a ``---``. The first document in the
@@ -210,6 +212,10 @@ example of a VEfile that uses profiles:
     requirements:
       - sqlalchemy
       - flask: ">=0.7"
+
+    environment:
+      value1: hello
+      value2: world
 
     some_value: foo
     
@@ -235,10 +241,15 @@ example of a VEfile that uses profiles:
     ---
     profile: production
 
+    environment:
+      value2: "python world"
+
     requirements:
       - python-memcached
       - mysql-python
 
+Using profiles with the vstrap command
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The VEfile above defines 3 profiles: *default*, *development*, and 
 *production*.
@@ -248,11 +259,22 @@ command line interface. You do this like so::
 
     $ vstrap [command] --profiles=production,development
 
-The line about will use both the production and the development profile. So the
+The line above will use both the production and the development profile. So the
 list of requirements installed will be ``sqlalchemy``, ``flask``, ``ipython``,
 ``python-memcached``, and ``mysql-python``. In addition, if you request for the
 value ``some_value`` you will get the value ``bar``, but that's only really 
 useful if you're developing a plugin for virtstrap.
+
+Using profiles when activating the environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you'd like to specify a different profile or profiles when activating the
+environment just do this in your project directory::
+    
+    $ . ./quickactivate production
+
+Using this line above to activate will ensure that the production and the
+default environment variables are set correctly.
 
 The Lock File
 -------------
