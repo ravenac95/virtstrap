@@ -10,7 +10,7 @@ Simplest Virtstrap Example
 --------------------------
 
 After virtstrap has been installed a command, vstrap, will be available on 
-your command line. You can create an virtstrap enabled project just by
+your command line. You can create a virtstrap enabled project just by
 doing the following::
 
     $ mkdir myproject
