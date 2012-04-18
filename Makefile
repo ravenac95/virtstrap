@@ -23,6 +23,8 @@ testall:
 	@cd virtstrap; make ptest
 	@echo "******************VIRTSTRAP-LOCAL TESTS*******************"
 	@cd virtstrap-local; make ptest
+	@echo "******************HIGH-LEVEL SHELL TESTS*******************"
+	@cd tests; sh run_tests
 
 # Create support files for the virtstrap package
 supportfiles:
