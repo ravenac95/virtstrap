@@ -1,5 +1,5 @@
-Basic Example
--------------
+Basic Environment Example
+-------------------------
 
 Another simple example. It has a simple VEfile which defines arbitrary
 environment variables. These variables are set to the desired values when the
