@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# The test runner for all the shunit2 tests
+
+scripts="$*"
+if [ -z "$scripts" ]
+then
+    scripts=$(ls test*.sh)
+    if [ -z "$scripts" ]
+    then
+        echo "Could not find any test scripts to run" 1>&2
+        exit 1
+    fi
+fi
+
+
+# Run the test scripts with a little formatting around them to make it
+# easier to find where each script output starts.
+for test_script in $scripts
+do
+
+    for test_shell in bash ksh zsh
+    do
+        test_shell_opts=
+        if [ $test_shell = "zsh" ]; then
+            test_shell_opts="-o shwordsplit"
+        fi
+        export test_shell=$(which $test_shell)
+
+        echo
+        echo '********************************************************************************'
+        echo "Running $test_script"
+        echo "  SHELL=$test_shell"
+        echo
+        export SHUNIT_PARENT="$test_script"
+        $test_shell $test_shell_opts $test_script || exit 1
+        echo
+    done
+done
