@@ -8,7 +8,7 @@ import sys
 import os
 from setuptools import setup, find_packages
 
-VERSION = "0.3.7-dev"
+VERSION = "0.3.7"
 
 # Installation requirements
 REQUIREMENTS = []
