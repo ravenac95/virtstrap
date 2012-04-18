@@ -28,7 +28,7 @@ class InstallCommand(commands.ProjectCommand):
         requirement_set = self.get_requirement_set(project)
         if requirement_set:
             # Check for lock file if it exists then use it.
-            locked_reqs_string = self.get_lock_file_requirement_set()
+            locked_reqs_string = self.get_lock_file_requirement_set(project)
             temp_reqs_path = self.write_temp_requirements_file(
                     requirement_set, locked_reqs_string)
             try:
@@ -56,9 +56,10 @@ class InstallCommand(commands.ProjectCommand):
         temp_reqs_file.close()
         return temp_reqs_path
 
-    def get_lock_file_requirement_set(self):
+    def get_lock_file_requirement_set(self, project):
+        lock_file_path = project.path(constants.VE_LOCK_FILENAME)
         try:
-            locked_requirements = open(constants.VE_LOCK_FILENAME, 'r')
+            locked_requirements = open(lock_file_path, 'r')
         except IOError:
             return ''
         return locked_requirements.read()
