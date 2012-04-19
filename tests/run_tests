@@ -19,7 +19,7 @@ fi
 for test_script in $scripts
 do
 
-    for test_shell in bash ksh zsh
+    for test_shell in bash ksh zsh sh
     do
         test_shell_opts=
         if [ $test_shell = "zsh" ]; then
