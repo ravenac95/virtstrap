@@ -60,3 +60,6 @@ quickactivate
 
 # Sphinx
 docs/_build
+
+#Tox
+.tox

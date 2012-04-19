@@ -84,4 +84,28 @@ testActivateTwoEnvironments() {
     assertNull "DG_E should be null" "$DG_E"
 }
 
+testPreservesOldEnvVariables() {
+    DG_A="ALPHA"
+    DG_B="BETA"
+    DG_C="CHARLIE"
+    DG_D="DELTA"
+    DG_E="ECHO"
+
+    . ./quickactivate development,production
+
+    assertSame "OA" "$DG_A"
+    assertSame "B" "$DG_B"
+    assertSame "OC" "$DG_C"
+    assertSame "D" "$DG_D"
+    assertSame "E" "$DG_E"
+
+    deactivate
+    
+    assertSame "ALPHA" "$DG_A"
+    assertSame "BETA" "$DG_B"
+    assertSame "CHARLIE" "$DG_C"
+    assertSame "DELTA" "$DG_D"
+    assertSame "ECHO" "$DG_E"
+}
+
 . ./shunit2

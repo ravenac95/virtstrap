@@ -26,6 +26,14 @@ testall:
 	@echo "******************HIGH-LEVEL SHELL TESTS*******************"
 	@cd tests; sh run_tests
 
+toxtests:
+	@echo "******************VIRTSTRAP-CORE TESTS*******************"
+	@cd virtstrap-core; tox
+	@echo "******************VIRTSTRAP (MAIN WRAPPER) TESTS*******************"
+	@cd virtstrap; tox
+	@echo "******************VIRTSTRAP-LOCAL TESTS*******************"
+	@cd virtstrap-local; tox
+
 # Create support files for the virtstrap package
 supportfiles:
 	@cd virtstrap; rm virtstrap_support/virtstrap-*
