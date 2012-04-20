@@ -7,8 +7,8 @@ from buildout and some things from pip and virtualenv. However,
 eventually buildout support was abandoned as pip and virtualenv
 were powerful enough for the job - they just needed better tools.
 
-`Click here for the full documentation
- <http://readthedocs.org/docs/virtstrap/en/latest/>`_
+For the full documentation 
+`go here <http://readthedocs.org/docs/virtstrap/en/latest/>`_
 
 Main Goals
 ----------
