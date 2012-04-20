@@ -32,9 +32,7 @@ class TestRequirementsLocker(object):
         self.temp_dir = self.temp_venv_ctx.enter()
         # Install all of the packages
         pip_bin = os.path.join(self.temp_dir, 'bin/pip')
-        python_version = '%d.%d' % (sys.version_info[0], sys.version_info[1])
-        site_packages = os.path.join(self.temp_dir, 
-                'lib/python%s/site-packages/' % python_version)
+        site_packages = site_packages_dir(base_dir=self.temp_dir)
         self.old_sys_path = sys.path
         sys.path.append(site_packages)
         output, return_code = call_and_capture([pip_bin, 'install', 'test1', 

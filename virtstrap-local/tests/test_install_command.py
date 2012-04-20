@@ -7,6 +7,7 @@ from nose.plugins.attrib import attr
 from tests import fixture_path
 from virtstrap import constants
 from virtstrap.testing import *
+from virtstrap.locker import site_packages_dir
 from virtstrap_local.commands.install import InstallCommand
 
 PACKAGES_DIR = fixture_path('packages')
@@ -52,10 +53,8 @@ class TestInstallCommand(object):
         self.project, self.options, self.temp_dir = self.temp_proj_ctx.enter()
 
         self.old_sys_path = sys.path
-        python_version = '%d.%d' % (sys.version_info[0], sys.version_info[1])
-        new_path = self.project.env_path(
-            'lib/python%s/site-packages' % python_version)
-        sys.path.append(new_path)
+        site_packages = site_packages_dir(base_dir=self.project.env_path())
+        sys.path.append(site_packages)
 
     def teardown(self):
         sys.path = self.old_sys_path
@@ -149,10 +148,8 @@ class TestInstallCommandOutsideOfDirectory(object):
         self.project, self.options, self.temp_dir = self.temp_proj_ctx.enter()
 
         self.old_sys_path = sys.path
-        python_version = '%d.%d' % (sys.version_info[0], sys.version_info[1])
-        new_path = self.project.env_path(
-            'lib/python%s/site-packages' % python_version)
-        sys.path.append(new_path)
+        site_packages = site_packages_dir(base_dir=self.project.env_path())
+        sys.path.append(site_packages)
 
     def teardown(self):
         sys.path = self.old_sys_path

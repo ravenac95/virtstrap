@@ -9,6 +9,7 @@ import pip
 import pkg_resources
 import re
 import site
+import platform
 from cStringIO import StringIO
 from .requirements import RequirementSet
 
@@ -25,6 +26,25 @@ def get_distribution(name, sys_path=None, working_set=None):
             working_set=working_set)
     return retriever.get_distribution(name)
 
+def site_packages_dir(base_dir=None):
+    """Determines correct site-packages directory. Used when writing lock file
+        
+    Works with:
+        - CPython 2.6
+        - CPython 2.7
+        - Pypy-1.7
+    """
+    # Calculate the default location
+    base = base_dir or os.path.realpath(sys.prefix) # Base directory
+    site_packages = os.path.join(base, 'lib', 
+            'python%s' % sys.version[:3], 'site-packages')
+    implementation = platform.python_implementation().lower()
+    # Handle any other exceptions
+    if implementation == "pypy":
+        site_packages = os.path.join(base, 'site-packages')
+    return site_packages
+
+
 class DistributionRetriever(object):
     def __init__(self, sys_path=None, working_set=None):
         self._sys_path = None
@@ -36,9 +56,7 @@ class DistributionRetriever(object):
     def create_work_set(self):
         # Virtualenv directory
         # FIXME support windows here
-        base = os.path.realpath(sys.prefix) # Base directory
-        site_packages = os.path.join(base, 'lib', 
-                'python%s' % sys.version[:3], 'site-packages')
+        site_packages = site_packages_dir()
         site.addsitedir(site_packages)
         sys_path = sys.path
         self._sys_path = sys_path
