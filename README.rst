@@ -33,6 +33,7 @@ Current Features
 - Generate a requirements file much like a Gemfile.lock
 - Provides a simple plugin system
 - Allows for arbitrary environment variables to be set
+- Currently works with CPython 2.6 & 2.7 and PyPy 1.7
 
 Is this yet another build tool?
 -------------------------------
