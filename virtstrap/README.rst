@@ -5,7 +5,7 @@ A simple script that allows you to setup a repeatable project using a
 variety of tools. The project came out of a need to use some things
 from buildout and some things from pip and virtualenv. However,
 eventually buildout support was abandoned as pip and virtualenv
-were powerful enough for the job.
+were powerful enough for the job - they just needed better tools.
 
 Main Goals
 ----------
@@ -15,8 +15,8 @@ Main Goals
 - Create Gemfile/Gemfile.lock like system
 - Set custom environment variables in the virtualenv
 - Setup multi python virtualenvs
-- Create a plugin system similar to buildout with more flexibility
-- Allow for local repository of compiled python modules so new virtstrap
+- Create a plugin system similar that is both flexible and simple
+- Allow for local caching of compiled python modules so new virtstrap
   environments don't continually go online to find a module.
 - A configuration file that is portable to more than just virtstrap. This
   allows for programs that aren't virtstrap to take advantage of the 
@@ -51,8 +51,8 @@ that virtstrap could make virtualenv-wrapper even simpler. It could also be
 shared between developers, build systems, and any number of scenarios. So,
 here's my crack at making something truly useful for python development.
 
-virtstrap Quick Start Guide
----------------------------
+virtstrap Quick Start
+---------------------
 
 The easiest way to get started with virtstrap is to install it
 on your local machine by simply doing the following::
@@ -92,3 +92,4 @@ Links
 -----
 
 * Website Coming Soon!
+* `Documentation <http://readthedocs.org/docs/virtstrap/en/latest/>`_
