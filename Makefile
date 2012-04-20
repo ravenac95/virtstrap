@@ -15,8 +15,8 @@ develop:
 	source quickactivate.sh; cd virtstrap/; python setup.py develop
 	source quickactivate.sh; cd virtstrap-local/; python setup.py develop
 
-# Test all of the packages
-testall:
+# Runs fast(ish) tests using only the current python environment
+quicktest:
 	@echo "******************VIRTSTRAP-CORE TESTS*******************"
 	@cd virtstrap-core; make ptest
 	@echo "******************VIRTSTRAP (MAIN WRAPPER) TESTS*******************"
@@ -26,6 +26,11 @@ testall:
 	@echo "******************HIGH-LEVEL SHELL TESTS*******************"
 	@cd tests; sh run_tests
 
+# Test all of the pac
+testall: toxtests
+	@cd tests; sh run_tests
+
+# Runs all the tox tests
 toxtests:
 	@echo "******************VIRTSTRAP-CORE TESTS*******************"
 	@cd virtstrap-core; tox
@@ -40,6 +45,7 @@ supportfiles:
 	@cd virtstrap-core; rm -r dist; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
 	@cd virtstrap-local; rm -r dist; python setup.py sdist; cp dist/*.tar.gz ../virtstrap/virtstrap_support
 
+# Packages and ships to PyPI
 distribute:
 	@cd virtstrap; python setup.py sdist upload
 	@cd virtstrap-core; python setup.py sdist upload
