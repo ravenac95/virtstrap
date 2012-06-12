@@ -8,7 +8,6 @@ python versions while still using all of the same code.
 """
 import re
 import sys
-from virtstrap.argparse import ArgumentParser
 from virtstrap.loaders import *
 from virtstrap.project import *
 from virtstrap.options import create_project_parser
