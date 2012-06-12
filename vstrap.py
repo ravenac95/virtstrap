@@ -27,7 +27,7 @@ except ImportError:
     VIRTUALENV_INSTALLED = False
 
 if platform.system() == "Windows":
-    print "virtstrap is only made for posix systems. Sorry."
+    print("virtstrap is only made for posix systems. Sorry.")
     sys.exit(1)
 
 ##########################################
@@ -60,7 +60,7 @@ def yes_no_input(prompt, default=True):
     while True:
         raw_result = raw_input_with_default(prompt, default_input_string)
         if not raw_result.lower() in ["yes", "no", "y", "n"]:
-            print "Please only input yes, no, y, or n"
+            print("Please only input yes, no, y, or n")
         else:
             if raw_result.startswith('y'):
                 result = True
@@ -76,11 +76,11 @@ def raw_input_with_default(prompt, default_input_string="['']"):
 ##########################################
 
 def exit_with_error():
-    print "Exiting. virtstrap task incomplete."
+    print("Exiting. virtstrap task incomplete.")
     sys.exit(EXIT_WITH_ERROR)
 
 def exit_normally():
-    print "virtstrap task completed."
+    print("virtstrap task completed.")
     sys.exit(EXIT_NORMALLY)
 
 ##########################################
@@ -95,12 +95,12 @@ def find_file_or_skip(file, not_found_string="'%s' not found."):
     file_found = True
     if not os.path.isfile(file):
         file_found = False
-        print not_found_string % file
+        print(not_found_string % file)
         if options.interactive:
             exit_with_error()
         else:
             if yes_no_input("Skip?"):
-                print "Skipping."
+                print("Skipping.")
             else:
                 exit_with_error()
     return file_found
@@ -109,12 +109,12 @@ def find_all_files_or_skip(files, not_found_string="Files not found."):
     files_found = True
     if not all_files_exist(files):
         files_found = False
-        print not_found_string
+        print(not_found_string)
         if not options.interactive:
             exit_with_error()
         else:
             if yes_no_input("Skip?"):
-                print "Skipping."
+                print("Skipping.")
             else:
                 exit_with_error()
     return files_found
@@ -154,7 +154,7 @@ def make_current_settings(settings_filename, default_settings=None):
     package_name = user_defined_settings.get('package_name')
     if not package_name:
         #If there isn't a package name then tell user and exit with error
-        print "At least a package name is required for virtstrap.py"
+        print("At least a package name is required for virtstrap.py")
         exit_with_error()
     
     # There are some built in defaults
@@ -178,7 +178,7 @@ def pip_requirements_builder(**kwargs):
     try:
         pip_requirements_file = settings['pip_requirements_file']
     except KeyError:
-        print "Pip env_type requires setting 'pip_requirements_file'"
+        print("Pip env_type requires setting 'pip_requirements_file'")
         exit_with_error()
     
     if find_file_or_skip(pip_requirements_file):
@@ -190,7 +190,7 @@ def shell_script_executor(**kwargs):
     try:
         shell_script_file = settings['shell_script_file']
     except KeyError:
-        print "Shell Script env_type requires a setting 'command_list_file'"
+        print("Shell Script env_type requires a setting 'command_list_file'")
         exit_with_error()
     if find_file_or_skip(shell_script_file):
         call(["sh", shell_script_file])
@@ -207,7 +207,7 @@ def buildout_builder(**kwargs):
     if not os.path.isfile(bootstrap_py):
         urllib.urlretrieve(settings['buildout_bootstrap_url'], bootstrap_py)
     if not os.path.isfile(bootstrap_py):
-        print "Error Downloading %s" % bootstrap_py
+        print("Error Downloading %s" % bootstrap_py)
         exit_with_error()
     
     # Get virtualenv interpreter to use for bootstrapping
@@ -220,7 +220,7 @@ def buildout_builder(**kwargs):
         if not os.path.isfile(buildout_executable):
             call([virtualenv_python_bin, bootstrap_py])
         if not os.path.isfile(buildout_executable):
-            print "Cannot find buildout executable"
+            print("Cannot find buildout executable")
             exit_with_error()
         call([buildout_executable,  "-c", buildout_cfg])
 
@@ -239,22 +239,22 @@ def create_virtualenv():
         message = ("In order to bootstrap with virtstrap. "
                 "You need virtualenv installed and you "
                 "should not be in an active virtualenv")
-        print message
+        print(message)
         exit_with_error()
     if in_virtualenv():
         message = ("WARNING: You are currently in an active virtualenv. "
                 "This is highly discouraged.")
-        print message
+        print(message)
         exit_with_error()
     # Create a virtual environment directory
     virtualenv_dir = settings['virtualenv_dir']
     virtualenv_dir_abspath = get_virtualenv_dir_abspath()
-    print "Creating Virtual Environment in %s" % virtualenv_dir_abspath
+    print("Creating Virtual Environment in %s" % virtualenv_dir_abspath)
     virtualenv.create_environment(settings['virtualenv_dir'], 
             site_packages=settings['use_site_packages'], 
             prompt=settings['prompt'])
     # Create activation script
-    print "Create quickactivate.sh script for virtualenv"
+    print("Create quickactivate.sh script for virtualenv")
     quick_activation_script(virtualenv_dir_abspath)
 
 
@@ -279,12 +279,12 @@ def run_build():
     for env_type in env_types:
         builder = ENVIRONMENT_TYPE_BUILDERS.get(env_type)
         if not builder:
-            print "env_type: %s. Does not exist" % env_type
+            print("env_type: %s. Does not exist" % env_type)
             if not options.interactive:
                 exit_with_error()
             else:
                 if yes_no_input("Skip?"):
-                    print "Skipping."
+                    print("Skipping.")
                 else:
                     exit_with_error()
         builder()
@@ -337,7 +337,7 @@ def main():
     virtstrap_command = VIRTSTRAP_COMMANDS.get(command_name)
     # If the virtstrap command doesn't exist then exit with error
     if not virtstrap_command:
-        print "'%s' is not a valid command" % command_name
+        print("'%s' is not a valid command" % command_name)
         exit_with_error()
     virtstrap_command()
     exit_normally()
