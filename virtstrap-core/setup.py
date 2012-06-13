@@ -4,11 +4,9 @@ virtstrap-core
 
 A bootstrapping mechanism for virtualenv, buildout, and shell scripts.
 """
-import sys
-import os
 from setuptools import setup, find_packages
 
-VERSION = '0.3.8-dev'
+VERSION = '0.3.8'
 
 # Installation requirements
 REQUIREMENTS = []

@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
-import sys, os
 
-VERSION = '0.3.8-dev'
+VERSION = '0.3.8'
 
 setup(name='virtstrap-local',
     version=VERSION,
@@ -17,7 +16,7 @@ setup(name='virtstrap-local',
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'virtstrap-core==%s' % VERSION, # Ensure matching versions
+        'virtstrap-core', 
     ],
     entry_points={
         'console_scripts': [
