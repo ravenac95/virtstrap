@@ -7,7 +7,6 @@ The 'install' command
 import os
 import tempfile
 import subprocess
-from contextlib import contextmanager
 from virtstrap import commands
 from virtstrap import constants
 from virtstrap.requirements import RequirementSet
