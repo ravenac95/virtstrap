@@ -11,7 +11,6 @@ import re
 import site
 import platform
 from cStringIO import StringIO
-from .requirements import RequirementSet
 
 LEVEL_STR = '  '
 COMMENT_PREFIX = '#::'
