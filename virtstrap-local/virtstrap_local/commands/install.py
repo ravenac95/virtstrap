@@ -12,6 +12,7 @@ from virtstrap import commands
 from virtstrap import constants
 from virtstrap.requirements import RequirementSet
 from virtstrap.locker import *
+from virtstrap.joined import *
 
 def process_requirements_config(raw_requirements):
     requirement_set = RequirementSet.from_config_data(raw_requirements)
@@ -28,9 +29,9 @@ class InstallCommand(commands.ProjectCommand):
         requirement_set = self.get_requirement_set(project)
         if requirement_set:
             # Check for lock file if it exists then use it.
-            locked_reqs_string = self.get_lock_file_requirement_set(project)
+            locked_reqs = self.get_locked_requirement_set(project)
             temp_reqs_path = self.write_temp_requirements_file(
-                    requirement_set, locked_reqs_string)
+                    requirement_set, locked_reqs)
             try:
                 self.run_pip_install(project, temp_reqs_path)
             except:
@@ -45,24 +46,23 @@ class InstallCommand(commands.ProjectCommand):
                                 process_requirements_config)
         return requirement_set
 
-    def write_temp_requirements_file(self, requirement_set, locked_reqs_string):
-        requirements_joiner = RequirementsJoiner()
-        requirements_write = requirements_joiner.join_to_str(
-                requirement_set=requirement_set,
-                locked_string=locked_reqs_string)
+    def write_temp_requirements_file(self, requirement_set, locked_reqs):
+        joined = JoinedRequirementSet.join(requirement_set, locked_reqs)
         os_handle, temp_reqs_path = tempfile.mkstemp()
         temp_reqs_file = open(temp_reqs_path, 'w')
-        temp_reqs_file.write(requirements_write)
+        for requirement in joined.as_list():
+            temp_reqs_file.write('%s\n' % requirement.to_pip_str())
         temp_reqs_file.close()
         return temp_reqs_path
 
-    def get_lock_file_requirement_set(self, project):
+    def get_locked_requirement_set(self, project):
         lock_file_path = project.path(constants.VE_LOCK_FILENAME)
         try:
-            locked_requirements = open(lock_file_path, 'r')
+            locked_requirements = LockedRequirementSet.from_file(
+                    lock_file_path)
         except IOError:
-            return ''
-        return locked_requirements.read()
+            return LockedRequirementSet.from_string('')
+        return locked_requirements
         
     def run_pip_install(self, project, requirements_path):
         logger = self.logger

@@ -139,6 +139,43 @@ class TestInstallCommand(object):
         for package in expected_packages:
             assert package in pip_packages
 
+    @attr('slow')
+    @hide_subprocess_stdout
+    @fudge.test
+    def test_run_install_using_lock_file_repeated_deps(self):
+        # This is a regression test
+        project = self.project
+        options = self.options
+        temp_dir = self.temp_dir
+        fake_req_set = SpecialFake()
+        (project.__patch_method__('process_config_section')
+                .returns(fake_req_set))
+
+        lock_file_path = project.path(constants.VE_LOCK_FILENAME)
+        lock_file = open(lock_file_path, 'w')
+        lock_file.write(textwrap.dedent("""
+            test1 (test1==0.1)
+            test5 (test5==1.4.3)
+              test2 (test2==1.3)
+              test3 (test3==0.10.1)
+            test2 (test2==1.3)
+            test3 (test3==0.10.1)
+        """))
+        lock_file.close()
+
+        fake_req_set_iter = fake_requirements(['test1', 'test5', 
+            'test2', 'test3'])
+        fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)
+
+        self.command.run(project, options)
+
+        pip_packages = pip_requirements(project)
+        
+        expected_packages = ['test1==0.1', 'test2==1.3', 
+                'test3==0.10.1', 'test5==1.4.3']
+        for package in expected_packages:
+            assert package in pip_packages
+
 class TestInstallCommandOutsideOfDirectory(object):
     def setup(self):
         self.command = InstallCommand()
