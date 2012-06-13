@@ -24,6 +24,50 @@ def test_initialize_locker():
 
 PACKAGES_DIR = fixture_path('packages')
 
+def test_initialize_locked_requirement_set():
+    fake_graph = fudge.Fake()
+    top_level_requirements = []
+    locked_req_set = LockedRequirementSet(fake_graph, top_level_requirements)
+
+@fudge.patch('virtstrap.locker.RequirementsGraphDisplay')
+def test_display_locked_requirement_set(fake_display):
+    fake_graph = fudge.Fake('RequirementsGraph')
+    top_level_requirements = []
+    fake_display_func = fudge.Fake()
+    locked_req_set = LockedRequirementSet(fake_graph, top_level_requirements)
+    fake_display.expects('graph_to_str').with_args(fake_graph, top_level_requirements,
+            display=fake_display_func).returns('graph_string')
+    assert locked_req_set.display(format=fake_display_func) == 'graph_string'
+
+@fudge.patch('virtstrap.locker.LockedRequirementsParser')
+def test_locked_requirement_set_from_string(fake_parser):
+    test_string = 'lockstring'
+    fake_parser_instance = fake_parser.expects_call().returns_fake()
+    (fake_parser_instance.expects('create_graph_from_string').with_args(test_string)
+            .returns(('graph', '')))
+    LockedRequirementSet.from_string(test_string)
+
+
+class TestLockedRequirementSet(object):
+    def setup(self):
+        self.fake_graph = fudge.Fake('RequirementsDependencyGraph')
+        self.locked_set = LockedRequirementSet(self.fake_graph, [fake_req('fake1'), 
+            fake_req('fake2')])
+
+    def teardown(self):
+        pass
+
+    @fudge.test
+    def test_find(self):
+        self.fake_graph.expects('get_requirement').returns('item')
+        assert self.locked_set.find('fake1') == 'item'
+
+    @fudge.test
+    def test_get_all_dependencies(self):
+        (self.fake_graph.expects('get_all_dependencies')
+                .with_args('fake1').returns('deps'))
+        assert self.locked_set.get_all_dependencies('fake1') == 'deps'
+
 class TestRequirementsLocker(object):
     def setup(self):
         self.pip_index_ctx = ContextUser(temp_pip_index(PACKAGES_DIR))
@@ -130,6 +174,10 @@ class TestRequirementsDependencyGraphAdvanced(FakeGraphMixin):
         dependencies = self.graph.get_all_dependencies('fake1')
         dep_names = map(lambda a: a.name, dependencies)
         assert set(dep_names) == set(['fake2', 'fake4', 'fake3'])
+
+        dependencies2 = self.graph.get_all_dependencies('fake2')
+        dep_names = map(lambda a: a.name, dependencies2)
+        assert set(dep_names) == set(['fake3'])
 
 def test_initialize_requirements_graph_display():
     graph = RequirementsDependencyGraph()

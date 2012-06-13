@@ -126,7 +126,35 @@ class LockedRequirement(object):
 
     def __repr__(self):
         return 'LockedRequirement(%s)' % self.name
+
+class LockedRequirementSet(object):
+    """Facade for the Locked Requirements
     
+    Provides a simple interface to the graph that stores locked requirements
+    """
+    @classmethod
+    def from_string(cls, string):
+        parser = LockedRequirementsParser()
+        graph, top_level_requirements = parser.create_graph_from_string(string)
+        return cls(graph, top_level_requirements)
+
+    def __init__(self, graph, top_level_requirements):
+        self._graph = graph
+        self._top_level = top_level_requirements
+
+    def display(self, format=None):
+        graph_str = RequirementsGraphDisplay.graph_to_str(self._graph,
+                self._top_level, display=format)
+        return graph_str
+
+    def find(self, name):
+        """Find's a requirement by name"""
+        return self._graph.get_requirement(name)
+
+    def get_all_dependencies(self, name):
+        """Get a requirement's dependencies by name"""
+        return self._graph.get_all_dependencies(name)
+
 class LockedRequirementsParser(object):
     def __init__(self, graph=None):
         self.graph = graph or RequirementsDependencyGraph()
@@ -175,12 +203,12 @@ class LockedRequirementsParser(object):
                 req_stack.pop()
             last = LockedRequirement(name, lock_string)
             # if the req_stack has something:
-            if level == 0:
-                self.top_level.append(last)
             if req_stack:
                 # add a dependency to the graph (use the last req_stack)
                 self.graph.add_dependency(req_stack[-1], last)
             else:
+                # if there's no stack we're on level 0
+                self.top_level.append(last)
                 # add a requirement to the graph
                 self.graph.add_requirement(last)
 
@@ -216,7 +244,6 @@ class RequirementsJoiner(object):
             requirement_strings = map(lambda a: a.to_pip_str(), 
                     non_locked_requirements)
         return requirement_strings
-        
 
     def get_locked_display(self, locked_string):
         def pip_display(level, requirement):
@@ -261,10 +288,18 @@ class RequirementsDependencyGraph(object):
 
     def get_all_dependencies(self, requirement):
         requirement = self.resolve_requirement(requirement)
-        req2 = self.resolve_requirement('fake2')
-        req3 = self.resolve_requirement('fake3')
-        req4 = self.resolve_requirement('fake4')
-        return [req2, req3, req4]
+        all_dependencies = []
+        self._collect_dependencies(requirement, all_dependencies)
+        return all_dependencies
+
+    def _collect_dependencies(self, requirement, collection, used=None):
+        used = used or []
+        dependencies = self.get_dependencies(requirement)
+        for dependency in dependencies:
+            if not dependency.name in used:
+                collection.append(dependency)
+                used.append(dependency.name)
+                self._collect_dependencies(dependency, collection, used=used)
 
     def resolve_requirement(self, requirement):
         if isinstance(requirement, (str, unicode)):
@@ -288,6 +323,11 @@ class RequirementsDependencyGraph(object):
         deps.append(dependency_req)
 
 class RequirementsGraphDisplay(object):
+    @classmethod
+    def graph_to_str(cls, graph, top_level, display=None):
+        display = cls(graph, display=None)
+        return display.show_dependencies(top_level)
+
     def __init__(self, graph, used=None, display=None):
         self.graph = graph
         self.used = used or []
