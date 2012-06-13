@@ -1,5 +1,4 @@
 nose
-nose_machineout
 virtualenv
 fudge
 pypiserver
