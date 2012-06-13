@@ -14,6 +14,7 @@ setUp() {
 
 tearDown() {
     cd $TEST_DIR
+    $PYTHON_BIN cleandir.py $EXAMPLE5_DIR
 }
 
 testInitExample() {
