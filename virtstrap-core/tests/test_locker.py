@@ -14,9 +14,11 @@ from virtstrap.testing import *
 from virtstrap.locker import *
 from tests import fixture_path
 
-def fake_req(name, editable=False):
+def fake_req(name, lock_string=None):
+    lock_string = lock_string or name
     fake = fudge.Fake()
-    fake.has_attr(name=name, req=name, editable=editable)
+    fake.has_attr(name=name, req=name)
+    fake.provides('to_pip_str').returns(lock_string)
     return fake
 
 def test_initialize_locker():
@@ -121,7 +123,7 @@ class FakeGraphMixin(object):
         fake_req3 = fake_req('fake3')
         fake_req4 = fake_req('fake4')
         fake_req5 = fake_req('fake5')
-        fake_req6 = fake_req('fake6', editable=True)
+        fake_req6 = fake_req('fake6', lock_string='-e fake6')
 
         graph = RequirementsDependencyGraph()
 
@@ -203,8 +205,7 @@ class TestRequirementsGraphDisplay(FakeGraphMixin):
     
     def test_display_multiple_dependencies(self):
         display = self.display
-        dep_str = display.show_dependencies(['fake1', 'fake5', 'fake6'], 
-                comment_doubles=True)
+        dep_str = display.show_dependencies(['fake1', 'fake5', 'fake6'])
         expected = textwrap.dedent("""
             fake1 (fake1)
               fake2 (fake2)
@@ -222,8 +223,7 @@ class TestRequirementsGraphDisplay(FakeGraphMixin):
 
     def test_display_multiple_dependencies_case_insensitive(self):
         display = self.display
-        dep_str = display.show_dependencies(['FAKE1', 'Fake5'],
-                comment_doubles=True)
+        dep_str = display.show_dependencies(['FAKE1', 'Fake5'])
         expected = textwrap.dedent("""
             fake1 (fake1)
               fake2 (fake2)

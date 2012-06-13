@@ -105,7 +105,7 @@ class RequirementsLocker(object):
         return dep_graph
 
     def _collect_dependencies(self, dist, graph, retriever, parent=None):
-        req = pip.FrozenRequirement.from_dist(dist, [], find_tags=False)
+        req = LockedRequirement.from_dist(dist, [], find_tags=False)
         if not parent:
             graph.add_requirement(req)
         else:
@@ -117,6 +117,18 @@ class RequirementsLocker(object):
             self._collect_dependencies(dist, graph, retriever, parent=req)
 
 class LockedRequirement(object):
+    @classmethod
+    def from_dist(cls, dist, dependency_links, find_tags=False):
+        pip_req = pip.FrozenRequirement.from_dist(dist, dependency_links, find_tags=find_tags)
+        req_prefix = ''
+        if pip_req.editable:
+            req_prefix = '-e '
+        req_str = str(pip_req.req)
+        if req_str.startswith('git:'):
+            req_str = 'git+%s' % req_str
+        lock_string = '%s%s' % (req_prefix, req_str)
+        return cls(pip_req.name.lower(), lock_string)
+
     def __init__(self, name, lock_string):
         self.name = name
         self._lock_string = lock_string
@@ -137,6 +149,12 @@ class LockedRequirementSet(object):
         parser = LockedRequirementsParser()
         graph, top_level_requirements = parser.create_graph_from_string(string)
         return cls(graph, top_level_requirements)
+
+    @classmethod
+    def from_file(cls, filename):
+        file_obj = open(filename)
+        string = file_obj.read()
+        return cls.from_string(string)
 
     def __init__(self, graph, top_level_requirements):
         self._graph = graph
@@ -252,7 +270,7 @@ class RequirementsJoiner(object):
         locked_graph, top_level_reqs = (self._locked_string_parser
                 .create_graph_from_string(locked_string))
         locked_display = RequirementsGraphDisplay(locked_graph, 
-                used=top_level_reqs, display=pip_display)
+                display=pip_display)
         return locked_display, top_level_reqs
 
 class RequirementsDependencyGraph(object):
@@ -328,35 +346,20 @@ class RequirementsGraphDisplay(object):
         display = cls(graph, display=None)
         return display.show_dependencies(top_level)
 
-    def __init__(self, graph, used=None, display=None):
+    def __init__(self, graph, display=None):
         self.graph = graph
-        self.used = used or []
         self._display = display or self.default_display
 
-    def show_dependencies(self, requirements, stream=None, 
-            comment_doubles=False, used=None):
+    def show_dependencies(self, requirements, stream=None):
         stream = stream or StringIO()
-        used = used or self.used
-        used = self._build_used_list(requirements, used)
         for requirement in requirements:
             requirement = self.graph.resolve_requirement(requirement)
             if requirement:
-                self._build_dependency_string(requirement, stream, 
-                    comment_doubles=comment_doubles, used=used)
+                self._build_dependency_string(requirement, stream)
         stream.seek(0)
         return stream.read()
 
-    def _build_used_list(self, requirements, used):
-        full_used = used[:]
-        for requirement in requirements:
-            requirement = self.graph.resolve_requirement(requirement)
-            if requirement:
-                full_used.append(requirement.name.lower())
-        return full_used
-
-    def _build_dependency_string(self, requirement, stream, level=0, 
-            comment_doubles=False, used=None):
-        used.append(requirement.name.lower())
+    def _build_dependency_string(self, requirement, stream, level=0):
         # Write the current requirement to the stream
         stream.write(self._display(level, requirement))
         graph = self.graph
@@ -365,17 +368,11 @@ class RequirementsGraphDisplay(object):
         # Recursively add them to the stream
         for dependency in deps:
             self._build_dependency_string(dependency, stream, 
-                    level=level+1, used=used)
+                    level=level+1)
         return stream
 
     def default_display(self, level, requirement):
         level_str = LEVEL_STR * level
-        req_prefix = ''
-        if requirement.editable:
-            req_prefix = '-e '
-        req_str = str(requirement.req)
-        if req_str.startswith('git:'):
-            req_str = 'git+%s' % req_str
-        lock_string = '%s%s' % (req_prefix, req_str)
+        lock_string = requirement.to_pip_str()
         return '%s%s (%s)\n' % (level_str, requirement.name.lower(),
                 lock_string)
