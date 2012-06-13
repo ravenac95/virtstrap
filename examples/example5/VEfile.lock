@@ -1,0 +1,3 @@
+testkit (testkit==0.1.2)
+  fudge (fudge==1.0.3)
+fudge (fudge==1.0.3)

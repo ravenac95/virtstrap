@@ -1,0 +1,6 @@
+---
+profile: development
+
+requirements:
+  - testkit
+  - fudge

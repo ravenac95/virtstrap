@@ -23,8 +23,12 @@ quicktest:
 	@cd virtstrap; make ptest
 	@echo "******************VIRTSTRAP-LOCAL TESTS*******************"
 	@cd virtstrap-local; make ptest
+	@make testexamples
+
+testexamples:
 	@echo "******************HIGH-LEVEL SHELL TESTS*******************"
 	@cd tests; sh run_tests
+
 
 # Test all of the pac
 testall: toxtests
