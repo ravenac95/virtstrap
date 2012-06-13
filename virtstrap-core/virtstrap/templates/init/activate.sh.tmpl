@@ -66,7 +66,11 @@ env_tempfile=`{{project.bin_path('virtstrap-tempfiler')}}`
 config_profiles=`cat {{project.env_path('config/profiles')}}`
 profiles=${1:-$config_profiles}
 # Write extra environment to tempfile
-{{project.bin_path('virtstrap-local')}} environment $env_tempfile --profiles=$profiles
+{{project.bin_path('virtstrap-local')}} \
+        --virtstrap-dir={{project.env_path()}} \
+        --project-dir={{project.path()}} environment \
+        $env_tempfile --profiles=$profiles
+
 # Store file's contents
 extra_env=`cat $env_tempfile`
 # Remove the tempfile
