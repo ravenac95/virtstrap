@@ -2,3 +2,4 @@ nose
 virtualenv
 fudge
 pypiserver
+mock
