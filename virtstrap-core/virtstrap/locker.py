@@ -15,27 +15,30 @@ from cStringIO import StringIO
 LEVEL_STR = '  '
 COMMENT_PREFIX = '#::'
 
+
 def get_distributions(requirements, sys_path=None, working_set=None):
-    retriever = DistributionRetriever(sys_path=sys_path, 
+    retriever = DistributionRetriever(sys_path=sys_path,
             working_set=working_set)
     return retriever.get_distributions(requirements)
 
+
 def get_distribution(name, sys_path=None, working_set=None):
-    retriever = DistributionRetriever(sys_path=sys_path, 
+    retriever = DistributionRetriever(sys_path=sys_path,
             working_set=working_set)
     return retriever.get_distribution(name)
 
+
 def site_packages_dir(base_dir=None):
     """Determines correct site-packages directory. Used when writing lock file
-        
+
     Works with:
         - CPython 2.6
         - CPython 2.7
         - Pypy-1.7
     """
     # Calculate the default location
-    base = base_dir or os.path.realpath(sys.prefix) # Base directory
-    site_packages = os.path.join(base, 'lib', 
+    base = base_dir or os.path.realpath(sys.prefix)
+    site_packages = os.path.join(base, 'lib',
             'python%s' % sys.version[:3], 'site-packages')
     implementation = platform.python_implementation().lower()
     # Handle any other exceptions
@@ -47,7 +50,7 @@ def site_packages_dir(base_dir=None):
 class DistributionRetriever(object):
     def __init__(self, sys_path=None, working_set=None):
         self._sys_path = None
-        self._working_set = (working_set or 
+        self._working_set = (working_set or
                 self.create_work_set())
         if not self._sys_path:
             self._sys_path = sys_path or sys.path
@@ -78,7 +81,15 @@ class DistributionRetriever(object):
 
     def get_distribution(self, name):
         working_set = self._working_set
-        return working_set.by_key[name]
+        working_set_dict = working_set.by_key
+        working_set_keys = working_set_dict.keys()
+        search_list = map(lambda a: (a.lower(), a), working_set_keys)
+        real_name = name
+        for search_key, real_key in search_list:
+            if search_key == name.lower():
+                real_name = real_key
+        return working_set_dict[real_name]
+
 
 class RequirementsLocker(object):
     def lock(self, requirement_set):
@@ -115,6 +126,7 @@ class RequirementsLocker(object):
         for dist in dists:
             self._collect_dependencies(dist, graph, retriever, parent=req)
 
+
 class LockedRequirement(object):
     @classmethod
     def from_dist(cls, dist, dependency_links, find_tags=False):
@@ -138,9 +150,10 @@ class LockedRequirement(object):
     def __repr__(self):
         return 'LockedRequirement(%s)' % self.name
 
+
 class LockedRequirementSet(object):
     """Facade for the Locked Requirements
-    
+
     Provides a simple interface to the graph that stores locked requirements
     """
     @classmethod
@@ -171,6 +184,7 @@ class LockedRequirementSet(object):
     def get_all_dependencies(self, name):
         """Get a requirement's dependencies by name"""
         return self._graph.get_all_dependencies(name)
+
 
 class LockedRequirementsParser(object):
     def __init__(self, graph=None):
@@ -229,24 +243,25 @@ class LockedRequirementsParser(object):
                 # add a requirement to the graph
                 self.graph.add_requirement(last)
 
+
 class RequirementsJoiner(object):
     """Joins locked requirements and the requirements set"""
-    def __init__(self, locked_string=None, requirement_set=None, 
+    def __init__(self, locked_string=None, requirement_set=None,
             locked_string_parser=None):
         self._locked_string = locked_string
         self._requirement_set = requirement_set
-        self._locked_string_parser = (locked_string_parser or 
+        self._locked_string_parser = (locked_string_parser or
                 LockedRequirementsParser())
 
     def join_to_str(self, requirement_set=None, locked_string=None):
         locked_display, top_level_reqs = self.get_locked_display(locked_string)
         locked_display_string = locked_display.show_dependencies(
                 requirement_set)
-        
+
         requirement_strings = self.additional_requirements(requirement_set,
                 top_level_reqs)
 
-        joined_string = "%s%s" % (locked_display_string, 
+        joined_string = "%s%s" % (locked_display_string,
                 "\n".join(requirement_strings))
         return joined_string
 
@@ -258,7 +273,7 @@ class RequirementsJoiner(object):
             non_locked_requirements = filter(
                     lambda a: not a.name.lower() in top_level_names,
                     requirement_set)
-            requirement_strings = map(lambda a: a.to_pip_str(), 
+            requirement_strings = map(lambda a: a.to_pip_str(),
                     non_locked_requirements)
         return requirement_strings
 
@@ -268,9 +283,10 @@ class RequirementsJoiner(object):
             return '%s%s\n' % (level_str, requirement.to_pip_str())
         locked_graph, top_level_reqs = (self._locked_string_parser
                 .create_graph_from_string(locked_string))
-        locked_display = RequirementsGraphDisplay(locked_graph, 
+        locked_display = RequirementsGraphDisplay(locked_graph,
                 display=pip_display)
         return locked_display, top_level_reqs
+
 
 class RequirementsDependencyGraph(object):
     """An adjacency list storage of the requirements graph
@@ -339,6 +355,7 @@ class RequirementsDependencyGraph(object):
         deps = self.get_dependencies(requirement)
         deps.append(dependency_req)
 
+
 class RequirementsGraphDisplay(object):
     @classmethod
     def graph_to_str(cls, graph, top_level, display=None):
@@ -366,7 +383,7 @@ class RequirementsGraphDisplay(object):
         deps = graph.get_dependencies(requirement)
         # Recursively add them to the stream
         for dependency in deps:
-            self._build_dependency_string(dependency, stream, 
+            self._build_dependency_string(dependency, stream,
                     level=level+1)
         return stream
 

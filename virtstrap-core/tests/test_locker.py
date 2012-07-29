@@ -7,12 +7,14 @@ import os
 import sys
 import textwrap
 import fudge
+from mock import Mock, patch
 from fudge.inspector import arg
 from nose.plugins.attrib import attr
 from virtstrap.requirements import RequirementSet
 from virtstrap.testing import *
 from virtstrap.locker import *
 from tests import fixture_path
+
 
 def fake_req(name, lock_string=None):
     lock_string = lock_string or name
@@ -21,15 +23,18 @@ def fake_req(name, lock_string=None):
     fake.provides('to_pip_str').returns(lock_string)
     return fake
 
+
 def test_initialize_locker():
     locker = RequirementsLocker()
 
 PACKAGES_DIR = fixture_path('packages')
 
+
 def test_initialize_locked_requirement_set():
     fake_graph = fudge.Fake()
     top_level_requirements = []
     locked_req_set = LockedRequirementSet(fake_graph, top_level_requirements)
+
 
 @fudge.patch('virtstrap.locker.RequirementsGraphDisplay')
 def test_display_locked_requirement_set(fake_display):
@@ -40,6 +45,7 @@ def test_display_locked_requirement_set(fake_display):
     fake_display.expects('graph_to_str').with_args(fake_graph, top_level_requirements,
             display=fake_display_func).returns('graph_string')
     assert locked_req_set.display(format=fake_display_func) == 'graph_string'
+
 
 @fudge.patch('virtstrap.locker.LockedRequirementsParser')
 def test_locked_requirement_set_from_string(fake_parser):
@@ -53,8 +59,10 @@ def test_locked_requirement_set_from_string(fake_parser):
 class TestLockedRequirementSet(object):
     def setup(self):
         self.fake_graph = fudge.Fake('RequirementsDependencyGraph')
-        self.locked_set = LockedRequirementSet(self.fake_graph, [fake_req('fake1'), 
-            fake_req('fake2')])
+        self.locked_set = LockedRequirementSet(self.fake_graph, [
+            fake_req('fake1'),
+            fake_req('fake2')
+        ])
 
     def teardown(self):
         pass
@@ -70,6 +78,7 @@ class TestLockedRequirementSet(object):
                 .with_args('fake1').returns('deps'))
         assert self.locked_set.get_all_dependencies('fake1') == 'deps'
 
+
 class TestRequirementsLocker(object):
     def setup(self):
         self.pip_index_ctx = ContextUser(temp_pip_index(PACKAGES_DIR))
@@ -81,14 +90,14 @@ class TestRequirementsLocker(object):
         site_packages = site_packages_dir(base_dir=self.temp_dir)
         self.old_sys_path = sys.path
         sys.path.append(site_packages)
-        output, return_code = call_and_capture([pip_bin, 'install', 'test1', 
+        output, return_code = call_and_capture([pip_bin, 'install', 'test1',
             'test2', 'test3', 'test4', 'test5'])
 
     def teardown(self):
         sys.path = self.old_sys_path
         self.temp_venv_ctx.exit()
         self.pip_index_ctx.exit()
-    
+
     @attr('slow')
     def test_locker_lock_requirements_set(self):
         requirements_list = ['test1', 'test5']
@@ -151,7 +160,7 @@ class TestRequirementsDependencyGraphBasic(object):
         graph.add_requirement(fake_req)
         deps = graph.get_dependencies(fake_req)
         assert deps == []
-        
+
     def test_add_distribution(self):
         fake_req1 = fudge.Fake()
         fake_req1.has_attr(name='fake1', editable=False)
@@ -196,13 +205,13 @@ class TestRequirementsGraphDisplay(FakeGraphMixin):
         dep_str = display.show_dependencies(['fake4'])
         expected = 'fake4 (fake4)\n'
         assert dep_str == expected
-    
+
     def test_display_single_dependency(self):
         display = self.display
         dep_str = display.show_dependencies(['fake2'])
         expected = 'fake2 (fake2)\n  fake3 (fake3)\n'
         assert dep_str == expected
-    
+
     def test_display_multiple_dependencies(self):
         display = self.display
         dep_str = display.show_dependencies(['fake1', 'fake5', 'fake6'])
@@ -238,8 +247,10 @@ class TestRequirementsGraphDisplay(FakeGraphMixin):
         expected = expected.strip()
         assert dep_str == expected
 
+
 def test_initialize_joiner():
     joiner = RequirementsJoiner()
+
 
 class TestRequirementsJoiner(FakeGraphMixin):
     def setup(self):
@@ -259,7 +270,7 @@ class TestRequirementsJoiner(FakeGraphMixin):
         requirements_list = ['fake1', 'fake5']
         req_set = RequirementSet.from_config_data(
                 requirements_list)
-        joined_str = self.joiner.join_to_str(requirement_set=req_set, 
+        joined_str = self.joiner.join_to_str(requirement_set=req_set,
                 locked_string=data)
         expected = textwrap.dedent("""
         fake2
@@ -280,7 +291,7 @@ class TestRequirementsJoiner(FakeGraphMixin):
         requirements_list = ['fake2','fake1', 'fake5']
         req_set = RequirementSet.from_config_data(
                 requirements_list)
-        joined_str = self.joiner.join_to_str(requirement_set=req_set, 
+        joined_str = self.joiner.join_to_str(requirement_set=req_set,
                 locked_string=data)
         expected = textwrap.dedent("""
         fake2==2
@@ -297,7 +308,7 @@ class TestRequirementsJoiner(FakeGraphMixin):
         requirements_list = ['fake2','fake1', 'fake5']
         req_set = RequirementSet.from_config_data(
                 requirements_list)
-        joined_str = self.joiner.join_to_str(requirement_set=req_set, 
+        joined_str = self.joiner.join_to_str(requirement_set=req_set,
                 locked_string=data)
         expected = textwrap.dedent("""
         fake2
@@ -311,6 +322,7 @@ class TestRequirementsJoiner(FakeGraphMixin):
 
 def test_initialize_locked_parser():
     locked_parser = LockedRequirementsParser()
+
 
 class TestLockedRequirementsParser(object):
     def setup(self):
@@ -326,3 +338,43 @@ class TestLockedRequirementsParser(object):
         fake_graph.expects('add_requirement').with_args(fake1_arg)
         fake_graph.expects('add_dependency').with_args(fake1_arg, fake2_arg)
         self.parser.create_graph_from_string('fake1 (fake1)\n  fake2 (fake2)\n')
+
+
+class TestDistributionRetriever(object):
+    def setup(self):
+        self.mock_sys_path = Mock()
+        self.mock_working_set = Mock()
+        self.retriever = DistributionRetriever(
+                sys_path=self.mock_sys_path,
+                working_set=self.mock_working_set)
+
+        self.working_set_dict = {
+            'SoMeThing1': 'something1',
+            'something2': 'something2',
+            'SOMETHING3': 'something3',
+        }
+
+        self.mock_working_set.by_key = self.working_set_dict
+
+    def test_get_distribution_many_times(self):
+        tests = [
+            ('something1', 'something1'),
+            ('SOMETHING1', 'something1'),
+            ('something2', 'something2'),
+            ('SOMEThINg2', 'something2'),
+        ]
+        for name, expected in tests:
+            yield self.do_get_distribution, name, expected
+
+    def do_get_distribution(self, name, expected):
+        distribution = self.retriever.get_distribution(name)
+        assert distribution == expected
+
+    def test_get_distributions_with_names(self):
+        names = [
+            'something1',
+            'something2',
+            'something3',
+        ]
+        distributions = self.retriever.get_distributions_with_names(names)
+        assert distributions == names
