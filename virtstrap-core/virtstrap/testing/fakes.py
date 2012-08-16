@@ -35,13 +35,13 @@ def fake_hook(name, command='command', events=None):
 @contextmanager
 def temp_project(change_working_dir=True):
     """Creates a temporary project directory within a temporary directory
-    
+
     This is useful for testing ProjectCommands.
     """
     base_parser = create_base_parser()
     options = base_parser.parse_args(args=[])
     dir_context = in_temp_directory
-    if not change_working_dir: 
+    if not change_working_dir:
         dir_context = temp_directory
     with dir_context() as temp_dir:
         vs_dir_path = os.path.join(temp_dir, constants.VIRTSTRAP_DIR)

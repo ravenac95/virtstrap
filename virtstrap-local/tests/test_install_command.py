@@ -3,6 +3,7 @@ import os
 import fudge
 import textwrap
 from fudge.patcher import patch_object
+from mock import patch, ANY
 from nose.plugins.attrib import attr
 from tests import fixture_path
 from virtstrap import constants
@@ -52,6 +53,9 @@ class TestInstallCommand(object):
         self.temp_proj_ctx = ContextUser(temp_project())
         self.project, self.options, self.temp_dir = self.temp_proj_ctx.enter()
 
+        # FIXME need to do something about the temp_proj_ctx
+        self.options.upgrade = False
+
         self.old_sys_path = sys.path
         site_packages = site_packages_dir(base_dir=self.project.env_path())
         sys.path.append(site_packages)
@@ -60,14 +64,32 @@ class TestInstallCommand(object):
         sys.path = self.old_sys_path
         self.temp_proj_ctx.exit()
         self.pip_index_ctx.exit()
-    
+
+    @attr('slow')
+    @patch('subprocess.call')
+    def test_run_pip_install_no_upgrade(self, mock_call):
+        mock_call.return_value = 0
+
+        self.command.run_pip_install(self.project, 'somepath', False)
+
+        mock_call.assert_called_with([ANY, 'install', '-r', 'somepath'])
+
+    @attr('slow')
+    @patch('subprocess.call')
+    def test_run_pip_install_with_upgrade(self, mock_call):
+        mock_call.return_value = 0
+
+        self.command.run_pip_install(self.project, 'somepath', True)
+
+        mock_call.assert_called_with([ANY, 'install', '-r', 'somepath', '--upgrade'])
+
     @attr('slow')
     @hide_subprocess_stdout
     @fudge.test
     def test_run_install(self):
-        # Install should process the requirements 
+        # Install should process the requirements
         # and create a requirement_set
-        # The requirement_set is then turned into a 
+        # The requirement_set is then turned into a
         # string and written to a requirements file to be
         # used by pip and install the requirements
         project = self.project
@@ -76,7 +98,7 @@ class TestInstallCommand(object):
         fake_req_set = SpecialFake()
         (project.__patch_method__('process_config_section')
                 .returns(fake_req_set))
-        
+
         fake_req_set_iter = fake_requirements(['test1'])
         fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)
         self.command.run(project, options)
@@ -94,14 +116,14 @@ class TestInstallCommand(object):
         fake_req_set = SpecialFake()
         (project.__patch_method__('process_config_section')
                 .returns(fake_req_set))
-        
+
         fake_req_set_iter = fake_requirements(['test1', 'test5'])
         fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)
 
         self.command.run(project, options)
         requirements_file = open(constants.VE_LOCK_FILENAME)
         requirements_data = requirements_file.read()
-        expected_packages = ['test1==0.2', 'test2==1.3', 
+        expected_packages = ['test1==0.2', 'test2==1.3',
                 'test3==0.10.1', 'test5==1.4.3']
         for package in expected_packages:
             assert package in requirements_data
@@ -133,8 +155,8 @@ class TestInstallCommand(object):
         self.command.run(project, options)
 
         pip_packages = pip_requirements(project)
-        
-        expected_packages = ['test1==0.1', 'test2==1.3', 
+
+        expected_packages = ['test1==0.1', 'test2==1.3',
                 'test3==0.10.1', 'test5==1.4.3']
         for package in expected_packages:
             assert package in pip_packages
@@ -163,18 +185,19 @@ class TestInstallCommand(object):
         """))
         lock_file.close()
 
-        fake_req_set_iter = fake_requirements(['test1', 'test5', 
+        fake_req_set_iter = fake_requirements(['test1', 'test5',
             'test2', 'test3'])
         fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)
 
         self.command.run(project, options)
 
         pip_packages = pip_requirements(project)
-        
-        expected_packages = ['test1==0.1', 'test2==1.3', 
+
+        expected_packages = ['test1==0.1', 'test2==1.3',
                 'test3==0.10.1', 'test5==1.4.3']
         for package in expected_packages:
             assert package in pip_packages
+
 
 class TestInstallCommandOutsideOfDirectory(object):
     def setup(self):
@@ -183,6 +206,8 @@ class TestInstallCommandOutsideOfDirectory(object):
         self.index_url = self.pip_index_ctx.enter()
         self.temp_proj_ctx = ContextUser(temp_project(False))
         self.project, self.options, self.temp_dir = self.temp_proj_ctx.enter()
+
+        self.options.upgrade = False
 
         self.old_sys_path = sys.path
         site_packages = site_packages_dir(base_dir=self.project.env_path())
@@ -220,8 +245,8 @@ class TestInstallCommandOutsideOfDirectory(object):
         self.command.run(project, options)
 
         pip_packages = pip_requirements(project)
-        
-        expected_packages = ['test1==0.1', 'test2==1.3', 
+
+        expected_packages = ['test1==0.1', 'test2==1.3',
                 'test3==0.10.1', 'test5==1.4.3']
         for package in expected_packages:
             assert package in pip_packages

@@ -63,3 +63,6 @@ docs/_build
 
 #Tox
 .tox
+
+# Rope
+.ropeproject
