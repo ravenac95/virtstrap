@@ -109,6 +109,32 @@ class TestInstallCommand(object):
     @attr('slow')
     @hide_subprocess_stdout
     @fudge.test
+    def test_run_install_with_upgrade(self):
+        # Install should process the requirements
+        # and create a requirement_set
+        # The requirement_set is then turned into a
+        # string and written to a requirements file to be
+        # used by pip and install the requirements
+        project = self.project
+        options = self.options
+
+        options.upgrade = True
+
+        temp_dir = self.temp_dir
+        fake_req_set = SpecialFake()
+        (project.__patch_method__('process_config_section')
+                .returns(fake_req_set))
+
+        fake_req_set_iter = fake_requirements(['test1'])
+        fake_req_set.expects('__iter_patch__').returns(fake_req_set_iter)
+        self.command.run(project, options)
+        requirements_file = open(constants.VE_LOCK_FILENAME)
+        requirements_data = requirements_file.read()
+        assert 'test1==0.2' in requirements_data
+
+    @attr('slow')
+    @hide_subprocess_stdout
+    @fudge.test
     def test_run_install_multiple_packages(self):
         project = self.project
         options = self.options
