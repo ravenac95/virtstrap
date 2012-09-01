@@ -105,7 +105,9 @@ class RequirementsLocker(object):
         # Initialize pip's version control modules
         # This is necessary to ensure we can determine if a project
         # is editable or not
-        pip.version_control()
+        # Compatibility for pip version < 1.2
+        load_version_control = getattr(pip, 'version_control', lambda: None)
+        load_version_control()
         # Create a frozen requirement for each installed dist
         dep_graph = RequirementsDependencyGraph()
         retriever = DistributionRetriever()
