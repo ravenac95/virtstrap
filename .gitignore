@@ -66,3 +66,9 @@ docs/_build
 
 # Rope
 .ropeproject
+
+# Bundler
+.bundle
+
+# NPM
+node_modules
