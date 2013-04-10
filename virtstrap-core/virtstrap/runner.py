@@ -89,6 +89,7 @@ class VirtstrapRunner(object):
         finally:
             self.close_context()
         if exit_code == EXIT_OK:
+            logger.close()
             # TODO actually delete the correct log file
             if os.path.exists(constants.LOG_FILE):
                 os.remove(constants.LOG_FILE)
