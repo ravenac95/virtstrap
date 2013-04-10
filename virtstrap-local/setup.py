@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.3.13'
+VERSION = '0.3.14'
 
 setup(name='virtstrap-local',
     version=VERSION,
