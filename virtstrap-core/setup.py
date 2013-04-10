@@ -6,7 +6,7 @@ A bootstrapping mechanism for virtualenv, buildout, and shell scripts.
 """
 from setuptools import setup, find_packages
 
-VERSION = '0.3.14'
+VERSION = '0.3.15'
 
 # Installation requirements
 REQUIREMENTS = []
