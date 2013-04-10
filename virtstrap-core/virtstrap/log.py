@@ -6,10 +6,8 @@ Provides a central logging facility. It is used to record log info
 and report both to a log file and stdout
 """
 import sys
-import os
 import logging
 import traceback
-from virtstrap import constants
 
 CLINT_AVAILABLE = True
 try:
@@ -19,6 +17,7 @@ except:
     # trust, but I really like colored output. So we'll give it a shot
     # and if it doesn't work we will just do something else.
     CLINT_AVAILABLE = False
+
 
 def get_logging_level(level):
     logging_level = None
@@ -36,10 +35,11 @@ def get_logging_level(level):
         raise TypeError('Invalid logging level. Must be string or int %s'
                 % str(level))
     return logging_level
-            
+
+
 class VirtstrapLogger(object):
     """Custom logger for use with virtstrap
-    
+
     It'll allow the logger to store logged data before a log file is setup. It
     is meant to be used globally.
     """
@@ -56,16 +56,16 @@ class VirtstrapLogger(object):
 
     def debug(self, message, **kwargs):
         self.log('debug', message, **kwargs)
-    
+
     def error(self, message, **kwargs):
         self.log('error', message, **kwargs)
-    
+
     def info(self, message, **kwargs):
         self.log('info', message, **kwargs)
-    
+
     def warning(self, message, **kwargs):
         self.log('warning', message, **kwargs)
-    
+
     def critical(self, message, **kwargs):
         self.log('critical', message, **kwargs)
 
@@ -77,7 +77,7 @@ class VirtstrapLogger(object):
         """Stores exception except using the debug level"""
         exception_str = self._get_exception_str()
         self.log('debug', '%s\n%s' % (message, exception_str))
-    
+
     def _get_exception_str(self):
         exception_info = sys.exc_info()
         exception_lines = traceback.format_exception(*exception_info)
@@ -94,6 +94,14 @@ class VirtstrapLogger(object):
             for handler in handlers:
                 handler.log(level, message)
 
+    def close(self):
+        handlers = self._handlers
+        for handler in handlers:
+            close = getattr(handler, 'close')
+            if close:
+                close()
+
+
 class VirtstrapLogHandler(object):
     def __init__(self, level='debug'):
         self._level = get_logging_level(level)
@@ -109,9 +117,14 @@ class VirtstrapLogHandler(object):
     def emit(self, level, message):
         raise NotImplementedError('Please implement an emit method')
 
+    def close(self):
+        pass
+
+
 class ConsoleLogHandler(VirtstrapLogHandler):
     def emit(self, level, message):
         sys.stdout.write(message)
+
 
 class ColoredConsoleLogHandler(VirtstrapLogHandler):
     level_colors = {
@@ -122,11 +135,13 @@ class ColoredConsoleLogHandler(VirtstrapLogHandler):
         "ERROR": "red",
         "EXCEPTION": "red",
     }
+
     def emit(self, level, output):
         color = self.level_colors.get(level, "black")
         colored_function = getattr(colored, color, lambda text: text)
         colored_output = colored_function(output)
         puts(colored_output)
+
 
 class FileLogHandler(VirtstrapLogHandler):
     """File Log Handler that uses built in logging to log"""
@@ -134,7 +149,13 @@ class FileLogHandler(VirtstrapLogHandler):
         self._file = open(filename, 'a')
 
     def emit(self, level, message):
-        self._file.write(message)
+        if self._file:
+            self._file.write(message)
+
+    def close(self):
+        self._file.close()
+        self._file = None
+
 
 class VirtstrapConsoleLogHandler(logging.Handler):
     def __init__(self, outputter):
@@ -142,13 +163,15 @@ class VirtstrapConsoleLogHandler(logging.Handler):
         logging.Handler.__init__(self)
 
     def emit(self, record):
-        outputter = self._outputter 
+        outputter = self._outputter
         output_string = self.format(record)
         outputter.write(output_string, record.levelname)
+
 
 class ConsoleLogOutputter(object):
     def write(self, output, level):
         print(output)
+
 
 class ColoredConsoleLogOutputter(ConsoleLogOutputter):
     level_colors = {
@@ -159,6 +182,7 @@ class ColoredConsoleLogOutputter(ConsoleLogOutputter):
         "ERROR": "red",
         "EXCEPTION": "red",
     }
+
     def write(self, output, level):
         color = self.level_colors.get(level, "black")
         colored_function = getattr(colored, color, lambda text: text)
@@ -173,6 +197,7 @@ VERBOSITY_LEVELS = {
     2: logging.INFO,
     3: logging.DEBUG,
 }
+
 
 def setup_logger(verbosity, no_colored_output=False, log_file=None):
     """Sets up the logger for the program. DO NOT USE DIRECTLY IN COMMANDS"""

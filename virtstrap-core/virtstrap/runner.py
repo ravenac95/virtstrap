@@ -28,11 +28,11 @@ def create_registry(*args):
 
 class VirtstrapRunner(object):
     """Routes command line to different commands"""
-    def __init__(self, registry_factory=create_registry, 
+    def __init__(self, registry_factory=create_registry,
             loader_factory=create_loader):
         self._loader_factory = loader_factory
         self._loader = None
-        
+
         # Set registry settings
         self._registry_factory = registry_factory
         self._registry = None
@@ -90,12 +90,12 @@ class VirtstrapRunner(object):
             self.close_context()
         if exit_code == EXIT_OK:
             # TODO actually delete the correct log file
-            if os.path.exists(constants.LOG_FILE): 
+            if os.path.exists(constants.LOG_FILE):
                 os.remove(constants.LOG_FILE)
         return exit_code
 
     def handle_global_options(self, cli_args):
-        setup_logger(cli_args.verbosity, 
+        setup_logger(cli_args.verbosity,
                 cli_args.no_colored_output, cli_args.log_file)
 
     def load_commands(self):
