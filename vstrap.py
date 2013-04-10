@@ -6,7 +6,7 @@ VirtualEnvironment Bootstrap
 
 zc.buildout is a great system for many different purposes. However,
 for quick prototyping of libraries and flexibility of using easy_install
-or pip virtualenv has the edge on buildout. The one major function that 
+or pip virtualenv has the edge on buildout. The one major function that
 virtualenv does not have is easy repeatability. This script attempts
 to remedy that by creating a special bootstrap for virtualenv that has the
 ability to use buildout, pip, a list of unix commands, or any combination of
@@ -43,10 +43,10 @@ DEFAULT_SETTINGS = dict(
     use_site_packages=False,
     virtualenv_dir="./vs.env/",
     env_types=[], #Possible values command_list, pip, buildout
-    # buildout bootstrap url so it can be downloaded. 
+    # buildout bootstrap url so it can be downloaded.
     # It's long so it was split into two lines (if that wasn't obvious)
     buildout_bin_path="bin/",
-    buildout_bootstrap_url=("http://svn.zope.org/*checkout*/" 
+    buildout_bootstrap_url=("http://svn.zope.org/*checkout*/"
         "zc.buildout/trunk/bootstrap/bootstrap.py"),
 )
 
@@ -156,7 +156,7 @@ def make_current_settings(settings_filename, default_settings=None):
         #If there isn't a package name then tell user and exit with error
         print("At least a package name is required for virtstrap.py")
         exit_with_error()
-    
+
     # There are some built in defaults
 
     # Create the default virtualenv prompt using the package name
@@ -180,7 +180,7 @@ def pip_requirements_builder(**kwargs):
     except KeyError:
         print("Pip env_type requires setting 'pip_requirements_file'")
         exit_with_error()
-    
+
     if find_file_or_skip(pip_requirements_file):
         pip_bin = "%s/bin/pip" % virtualenv_dir_abspath
         pip_command = "install"
@@ -199,17 +199,17 @@ def buildout_builder(**kwargs):
     bootstrap_py = "bootstrap.py"
 
     buildout_cfg = settings.get('buildout_config_file', 'buildout.cfg')
-    buildout_cfg_found = find_file_or_skip(buildout_cfg, 
+    buildout_cfg_found = find_file_or_skip(buildout_cfg,
             not_found_string=("Buildout needs the specified buildout config "
                 "file (%s) present"))
-    
+
     # Download bootstrap.py
     if not os.path.isfile(bootstrap_py):
         urllib.urlretrieve(settings['buildout_bootstrap_url'], bootstrap_py)
     if not os.path.isfile(bootstrap_py):
         print("Error Downloading %s" % bootstrap_py)
         exit_with_error()
-    
+
     # Get virtualenv interpreter to use for bootstrapping
     virtualenv_dir_abspath = get_virtualenv_dir_abspath()
     virtualenv_python_bin = os.path.join(virtualenv_dir_abspath, "bin/python")
@@ -250,21 +250,21 @@ def create_virtualenv():
     virtualenv_dir = settings['virtualenv_dir']
     virtualenv_dir_abspath = get_virtualenv_dir_abspath()
     print("Creating Virtual Environment in %s" % virtualenv_dir_abspath)
-    virtualenv.create_environment(settings['virtualenv_dir'], 
-            site_packages=settings['use_site_packages'], 
+    virtualenv.create_environment(settings['virtualenv_dir'],
+            site_packages=settings['use_site_packages'],
             prompt=settings['prompt'])
     # Create activation script
     print("Create quickactivate.sh script for virtualenv")
     quick_activation_script(virtualenv_dir_abspath)
 
 
-def quick_activation_script(virtualenv_dir, file="quickactivate.sh", 
+def quick_activation_script(virtualenv_dir, file="quickactivate.sh",
         base_path='./'):
     """Builds a virtualenv activation script shortcut"""
     quick_activate_filename = os.path.join(base_path, file)
     quick_activate_file = open(quick_activate_filename, 'w')
     quick_activate_file.write(textwrap.dedent("""
-        #!/bin/bash 
+        #!/bin/bash
         . %(virtualenv_dir)s/bin/activate
 
         virtualenv_original_deactivate=`typeset -f deactivate | sed 's/deactivate/vsdeactivate/g'`
@@ -309,10 +309,10 @@ parser.add_option("-n", "--no-build", dest="no_build",
         help="Only setup virtual environment")
 parser.add_option("-s", "--install-settings", dest="install_settings",
         help=("The settings JSON file defaults to %s"
-            % DEFAULT_SETTINGS_FILENAME), 
+            % DEFAULT_SETTINGS_FILENAME),
         default=DEFAULT_SETTINGS_FILENAME)
 parser.add_option("-i", "--interactive", dest="interactive",
-        help="Turns on interactivity", 
+        help="Turns on interactivity",
         default=False)
 
 options, args = parser.parse_args() #Global options and args
