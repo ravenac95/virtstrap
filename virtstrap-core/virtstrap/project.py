@@ -2,17 +2,19 @@
 virtstrap.project
 -----------------
 
-This module contains all the abstractions for dealing with a Project. 
+This module contains all the abstractions for dealing with a Project.
 Using this object simplifies creating commands that are used to manage
 the project.
 """
 
 import os
+import sys
 from virtstrap import constants
 from virtstrap.config import VirtstrapConfig
 from virtstrap.utils import call_subprocess
 
 VIRTSTRAP_DIR = constants.VIRTSTRAP_DIR
+
 
 class Project(object):
     @classmethod
@@ -25,7 +27,7 @@ class Project(object):
     def __init__(self):
         self._options = None
         self._config = None
-    
+
     def load_settings(self, options):
         # Check if project directory is specified
         project_dir = getattr(options, 'project_dir', None)
@@ -34,7 +36,7 @@ class Project(object):
         project_dir = os.path.abspath(project_dir)
         self._project_dir = project_dir
         config_file = os.path.join(project_dir, options.config_file)
-        config = VirtstrapConfig.from_file(config_file, 
+        config = VirtstrapConfig.from_file(config_file,
                 profiles=options.profiles)
         processor = ProjectNameProcessor(project_dir)
         project_name = config.process_section('project_name', processor)
@@ -65,12 +67,15 @@ class Project(object):
 
     def env_path(self, *paths):
         """Create a path relative to the virtstrap-dir"""
-        return os.path.join(self._project_dir, 
+        return os.path.join(self._project_dir,
                 self._options.virtstrap_dir, *paths)
 
     def bin_path(self, *paths):
         """Create a path relative to the virtstrap-dir's bin directory"""
-        return self.env_path('bin', *paths)
+        bin_py = 'bin'
+        if sys.platform == 'win32':
+            bin_py = 'Scripts'
+        return self.env_path(bin_py, *paths)
 
     def process_config_section(self, section, processor):
         return self._config.process_section(section, processor)
@@ -84,8 +89,10 @@ class Project(object):
         command.extend(args)
         return call_subprocess(command, **options)
 
+
 class NoProjectFound(Exception):
     pass
+
 
 def find_project_dir(current_dir=None):
     """Finds the project directory for the current directory"""
