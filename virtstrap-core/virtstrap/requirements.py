@@ -8,6 +8,7 @@ to the install command.
 from urlparse import urlparse
 from virtstrap.exceptions import RequirementsConfigError
 
+
 class RequirementSet(object):
     @classmethod
     def from_config_data(cls, raw_data):
@@ -26,7 +27,7 @@ class RequirementSet(object):
         self._requirements = requirements_list
 
     def to_pip_str(self):
-        # Process all of the requirements in the 
+        # Process all of the requirements in the
         # previously set requirements list
         pip_lines = []
         for requirement in self._requirements:
@@ -40,9 +41,11 @@ class RequirementSet(object):
         """Return requirements iterator"""
         return iter(self._requirements)
 
+
 def process_raw_requirements(raw_data):
     processor = RequirementsProcessor()
     return processor.to_requirements(raw_data)
+
 
 class Requirement(object):
     def __init__(self, name, version=''):
@@ -59,13 +62,15 @@ class Requirement(object):
     def __repr__(self):
         return 'Requirement(%s)' % self.to_pip_str()
 
+
 class URLRequirement(Requirement):
     def __init__(self, name, url):
         self._url = url
         super(URLRequirement, self).__init__(name)
-    
+
     def to_pip_str(self):
         return '%s#egg=%s' % (self._url, self._name)
+
 
 class VCSRequirement(Requirement):
     def __init__(self, name, url, at=None, editable=False):
@@ -83,6 +88,7 @@ class VCSRequirement(Requirement):
         postfix = postfix_template % self._name
         return '%s%s%s' % (prefix, self._url, postfix)
 
+
 class RequirementsProcessor(object):
     """Turns data from configuration into Requirement objects"""
     requirement_types = {
@@ -97,7 +103,7 @@ class RequirementsProcessor(object):
     def to_requirements(self, raw_list):
         requirements = []
         raw_list = raw_list or []
-        
+
         for raw_requirement in raw_list:
             if isinstance(raw_requirement, str):
                 requirement = self.create_requirement('basic', raw_requirement)
@@ -110,7 +116,7 @@ class RequirementsProcessor(object):
 
     def _handle_requirement_dict(self, raw_requirement):
         """Handle when requirement is in dict form"""
-        keys = raw_requirement.keys() 
+        keys = raw_requirement.keys()
         # Check that there is one and only one key
         if len(keys) != 1:
             raise RequirementsConfigError('Requirement error. '
