@@ -1,0 +1,11 @@
+{
+  "name": "virtstrap-example2",
+  "private": true,
+  "version": "0.0.1",
+  "devDependencies": {
+    "component": "*",
+    "uglify-js": "*",
+    "component-karma-run": "*",
+    "component-test-builder": "*"
+  }
+}
